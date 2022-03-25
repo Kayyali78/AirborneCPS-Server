@@ -59,6 +59,17 @@ The last three postitions are necessary parameters for a [TCAS](https://en.wikip
 
 ## GUI
 
+The initial version of GUI
+![](https://i.imgur.com/Sj3aRaP.png)
+
+Split panel consist of three panel.
+
+Left Panel is where we can selected view, or selected drop file.
+
+Middle Panel is where we can view maps, alone with the plane markers.
+
+Right panel containes a tab with three kinds of sources, ADSB, TCP, UDP. On the downside, there are some parameters according to the selected items.
+
 
 
 
