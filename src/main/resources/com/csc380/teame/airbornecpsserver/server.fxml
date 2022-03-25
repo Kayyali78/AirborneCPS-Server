@@ -97,9 +97,9 @@
         </Menu>
       </menus>
     </MenuBar>
-    <SplitPane dividerPositions="0.2505567928730512, 0.7505567928730512" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <SplitPane dividerPositions="0.2206, 0.7506" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
       <items>
-        <AnchorPane>
+        <AnchorPane prefHeight="553.0" prefWidth="194.0">
           <children>
             <Label alignment="CENTER" layoutX="42.0" layoutY="31.0" minWidth="60.0" prefWidth="-1.0" style="&#10;" text="View" textAlignment="CENTER" wrapText="false">
               <font>
@@ -141,30 +141,33 @@
                     <tabs>
                       <Tab text="ADSB">
                            <content>
-                              <ListView fx:id="ListADSB" prefHeight="200.0" prefWidth="200.0" />
+                              <ListView fx:id="ListADSB" onMouseClicked="#adsbclicked" prefHeight="200.0" prefWidth="200.0" />
                            </content>
                       </Tab>
                       <Tab text="TCP">
                            <content>
-                              <ListView fx:id="ListTCP" prefHeight="200.0" prefWidth="200.0" />
+                              <ListView fx:id="ListTCP" onMouseClicked="#tcpclicked" prefHeight="200.0" prefWidth="200.0" />
                            </content>
                       </Tab>
                         <Tab text="UDP">
                            <content>
-                              <ListView fx:id="ListUDP" prefHeight="200.0" prefWidth="200.0" />
+                              <ListView fx:id="ListUDP" onMouseClicked="#udpclicked" prefHeight="200.0" prefWidth="200.0" />
                            </content>
                         </Tab>
                     </tabs>
                   </TabPane>
-                  <GridPane layoutX="5.0" layoutY="269.0" prefHeight="142.0" prefWidth="182.0">
+                  <GridPane layoutX="5.0" layoutY="226.0" prefHeight="179.0" prefWidth="182.0">
                      <columnConstraints>
                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="86.0" minWidth="10.0" prefWidth="67.0" />
                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="113.0" minWidth="10.0" prefWidth="113.0" />
                      </columnConstraints>
                      <rowConstraints>
                         <RowConstraints maxHeight="64.8" minHeight="10.0" prefHeight="36.9999755859375" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="52.7999755859375" minHeight="0.0" prefHeight="43.79997558593751" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="80.60001220703126" minHeight="10.0" prefHeight="63.000024414062494" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="52.7999755859375" minHeight="0.0" prefHeight="45.0000244140625" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="80.60001220703126" minHeight="10.0" prefHeight="43.3999755859375" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="80.60001220703126" minHeight="10.0" prefHeight="43.3999755859375" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="80.60001220703126" minHeight="10.0" prefHeight="43.3999755859375" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="80.60001220703126" minHeight="10.0" prefHeight="43.3999755859375" vgrow="SOMETIMES" />
                      </rowConstraints>
                      <children>
                         <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Latitude:" GridPane.halignment="RIGHT" />
@@ -179,10 +182,17 @@
                               <Insets left="5.0" />
                            </GridPane.margin>
                         </Label>
-                        <Label fx:id="latitudeLabel1" alignment="CENTER_RIGHT" contentDisplay="LEFT" text="Altitude" GridPane.rowIndex="2" />
+                        <Label alignment="CENTER_RIGHT" contentDisplay="LEFT" prefHeight="15.0" prefWidth="72.0" text="Altitude:" textAlignment="CENTER" GridPane.rowIndex="2" />
+                        <Label fx:id="altitudeLabel" alignment="CENTER_RIGHT" contentDisplay="LEFT" text="" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Label alignment="CENTER_RIGHT" contentDisplay="LEFT" prefHeight="15.0" prefWidth="72.0" text="ICAO:" textAlignment="CENTER" GridPane.rowIndex="4" />
+                        <Label alignment="CENTER_RIGHT" contentDisplay="LEFT" prefHeight="15.0" prefWidth="72.0" text="Heading:" textAlignment="CENTER" GridPane.rowIndex="5" />
+                        <Label alignment="CENTER_RIGHT" contentDisplay="LEFT" prefHeight="15.0" prefWidth="72.0" text="Callsign:" textAlignment="CENTER" GridPane.rowIndex="3" />
+                        <Label fx:id="callLabel" alignment="CENTER_RIGHT" contentDisplay="LEFT" text="" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <Label fx:id="ICAOLabel" alignment="CENTER_RIGHT" contentDisplay="LEFT" text="" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <Label fx:id="headingLabel" alignment="CENTER_RIGHT" contentDisplay="LEFT" text="" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                      </children>
                   </GridPane>
-                  <Button fx:id="refreshmap" layoutX="69.0" layoutY="437.0" mnemonicParsing="false" onAction="#r_map" text="Draw" />
+                  <Button fx:id="refreshmap" layoutX="20.0" layoutY="515.0" mnemonicParsing="false" onAction="#r_map" text="Draw" />
           </children>
         </AnchorPane>
       </items>
