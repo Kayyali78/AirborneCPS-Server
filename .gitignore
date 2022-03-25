@@ -25,9 +25,13 @@ hs_err_pid*
 #vscode
 .vscode/
 
+.idea/
+
+.opensky-api/
+
 #java build
 target/
-
+opensky-api/
 #opensky
 
 src/opensky-api/
