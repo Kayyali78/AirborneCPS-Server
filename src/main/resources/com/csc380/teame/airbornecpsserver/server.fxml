@@ -46,6 +46,7 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -54,6 +55,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.paint.Color?>
+<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
 <VBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.csc380.teame.airbornecpsserver.GUIController">
@@ -109,10 +111,10 @@
                 <Color red="0.624" green="0.624" blue="0.624" fx:id="x2" />
               </textFill>
             </Label>
-                  <CheckBox fx:id="view_adsb" layoutX="36.0" layoutY="63.0" mnemonicParsing="false" text="Opensky" />
-                  <CheckBox fx:id="view_udp" layoutX="36.0" layoutY="91.0" mnemonicParsing="false" text="AirborneCPS-UDP" />
-                  <CheckBox fx:id="view_tcp" layoutX="36.0" layoutY="119.0" mnemonicParsing="false" text="AirborneCPS-TCP" />
-                  <Label alignment="CENTER" layoutX="44.0" layoutY="174.0" minWidth="60.0" prefWidth="-1.0" style="&#10;" text="Relay Filter" textAlignment="CENTER" wrapText="false">
+                  <CheckBox fx:id="view_adsb" layoutX="36.0" layoutY="63.0" mnemonicParsing="false" selected="true" text="Opensky" />
+                  <CheckBox fx:id="view_udp" layoutX="36.0" layoutY="91.0" mnemonicParsing="false" selected="true" text="AirborneCPS-UDP" />
+                  <CheckBox fx:id="view_tcp" layoutX="36.0" layoutY="119.0" mnemonicParsing="false" selected="true" text="AirborneCPS-TCP" />
+                  <Label alignment="CENTER" layoutX="44.0" layoutY="146.0" minWidth="60.0" prefWidth="-1.0" style="&#10;" text="Relay Filter" textAlignment="CENTER" wrapText="false">
                      <font>
                         <Font size="18.0" fx:id="x11" />
                      </font>
@@ -120,16 +122,22 @@
                         <Color red="0.624" green="0.624" blue="0.624" fx:id="x21" />
                      </textFill>
                   </Label>
-                  <CheckBox fx:id="f_opensky" layoutX="36.0" layoutY="210.0" mnemonicParsing="false" text="Opensky" />
-                  <CheckBox fx:id="f_udp" layoutX="36.0" layoutY="245.0" mnemonicParsing="false" text="AirborneCPS-UDP" />
-                  <CheckBox fx:id="f_tcp" layoutX="37.0" layoutY="276.0" mnemonicParsing="false" text="AirborneCPS-TCP" />
+                  <CheckBox fx:id="f_opensky" layoutX="36.0" layoutY="183.0" mnemonicParsing="false" selected="true" text="Opensky" />
+                  <CheckBox fx:id="f_udp" layoutX="36.0" layoutY="213.0" mnemonicParsing="false" selected="true" text="AirborneCPS-UDP" />
+                  <CheckBox fx:id="f_tcp" layoutX="37.0" layoutY="244.0" mnemonicParsing="false" selected="true" text="AirborneCPS-TCP" />
+                  <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="53.0" layoutX="75.0" layoutY="342.0" stroke="BLACK" strokeType="INSIDE" width="54.0" />
+                  <TextField fx:id="minLon" layoutX="3.0" layoutY="357.0" prefHeight="23.0" prefWidth="70.0" text="-100.9962" />
+                  <TextField fx:id="minLat" layoutX="71.0" layoutY="395.0" prefHeight="23.0" prefWidth="62.0" text="30.8389" />
+                  <TextField fx:id="maxLat" layoutX="71.0" layoutY="318.0" prefHeight="23.0" prefWidth="62.0" text="50.8229" />
+                  <TextField fx:id="maxLon" layoutX="131.0" layoutY="357.0" prefHeight="23.0" prefWidth="58.0" text="-40.1234" />
+                  <Button fx:id="updateBbox" layoutX="72.0" layoutY="451.0" mnemonicParsing="false" onAction="#r_map" text="Update" />
           </children>
         </AnchorPane>
         <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
           <content>
-            <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="854.0" prefWidth="792.0">
+            <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="552.0" prefWidth="469.0">
               <children>
-                        <GoogleMapView fx:id="googleMapView" layoutX="45.0" prefHeight="601.0" prefWidth="487.0" AnchorPane.bottomAnchor="-19.0" AnchorPane.leftAnchor="45.0" AnchorPane.rightAnchor="-102.0" AnchorPane.topAnchor="0.0" />
+                        <GoogleMapView fx:id="googleMapView" layoutX="-6.0" layoutY="-3.0" prefHeight="552.0" prefWidth="469.6" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
               </children>
             </AnchorPane>
           </content>
@@ -156,7 +164,7 @@
                         </Tab>
                     </tabs>
                   </TabPane>
-                  <GridPane layoutX="5.0" layoutY="226.0" prefHeight="179.0" prefWidth="182.0">
+                  <GridPane layoutX="5.0" layoutY="226.0" prefHeight="200.0" prefWidth="182.0">
                      <columnConstraints>
                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="86.0" minWidth="10.0" prefWidth="67.0" />
                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="113.0" minWidth="10.0" prefWidth="113.0" />
@@ -164,6 +172,7 @@
                      <rowConstraints>
                         <RowConstraints maxHeight="64.8" minHeight="10.0" prefHeight="36.9999755859375" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="52.7999755859375" minHeight="0.0" prefHeight="45.0000244140625" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="80.60001220703126" minHeight="10.0" prefHeight="43.3999755859375" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="80.60001220703126" minHeight="10.0" prefHeight="43.3999755859375" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="80.60001220703126" minHeight="10.0" prefHeight="43.3999755859375" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="80.60001220703126" minHeight="10.0" prefHeight="43.3999755859375" vgrow="SOMETIMES" />
@@ -190,6 +199,8 @@
                         <Label fx:id="callLabel" alignment="CENTER_RIGHT" contentDisplay="LEFT" text="" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                         <Label fx:id="ICAOLabel" alignment="CENTER_RIGHT" contentDisplay="LEFT" text="" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                         <Label fx:id="headingLabel" alignment="CENTER_RIGHT" contentDisplay="LEFT" text="" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <Label alignment="CENTER_RIGHT" contentDisplay="LEFT" prefHeight="15.0" prefWidth="72.0" text="Speed:" textAlignment="CENTER" GridPane.rowIndex="6" />
+                        <Label fx:id="headingLabel1" alignment="CENTER_RIGHT" contentDisplay="LEFT" text="" GridPane.columnIndex="1" GridPane.rowIndex="6" />
                      </children>
                   </GridPane>
                   <Button fx:id="refreshmap" layoutX="20.0" layoutY="515.0" mnemonicParsing="false" onAction="#r_map" text="Draw" />
