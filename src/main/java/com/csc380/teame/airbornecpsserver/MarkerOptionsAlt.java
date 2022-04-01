@@ -6,7 +6,7 @@ public class MarkerOptionsAlt extends MarkerOptions {
     public MarkerOptionsAlt(){
         super();
     }
-    public MarkerOptionsAlt rotation(int degree){
+    public MarkerOptions rotation(Object degree){
         setProperty("rotation",degree);
         return this;
     }
