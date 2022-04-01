@@ -12,6 +12,8 @@ public class TCPHandler {
     protected enum Mode { normal, slower, slowest }
     private final static String helptext = "Syntax: java -jar tcpbeacons.jar (-server PORT? FILENAME | -client IP PORT FILENAME) slow? slow?";
 
+    //todo: Reformat string arguments when testing completed to take out FILENAME
+
     public TCPHandler(String[] args){
         if (args.length == 0) System.out.println(helptext);
         else {
@@ -49,121 +51,122 @@ public class TCPHandler {
             }
         }
     }
-
-    public class Server {
-        int port;
-        int delay;
-
-        public Server(){
-            this(1901, TCPHandler.Mode.normal);
-        }
-        public Server(int port, TCPHandler.Mode mode){
-            this.port = port;
-            switch (mode) {
-                case normal: this.delay = 0; break;
-                case slower: this.delay = 100; break;
-                case slowest: this.delay = 500; break;
-            }
-        }
-
-        public void serve(String file){
-                try (ServerSocket serverSocket = new ServerSocket(port)) {
-                    System.out.println("Server is listening on port " + port);
-                    while (true) {
-                        Socket socket = serverSocket.accept();
-                        System.out.println("New client connected: " + socket.getInetAddress().getHostAddress());
-                        //reader threat for this client
-                        new Thread(() -> {
-                            Scanner reader = null;
-                            try {
-                                reader = new Scanner(socket.getInputStream());
-                                while (reader.hasNext()) {
-                                    System.out.println(socket.getInetAddress().getHostAddress() + ": " + reader.nextLine());
-                                }
-                                System.out.println("Client " + socket.getInetAddress().getHostAddress() + " disconnected.");
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }).start();
-                        //writer thread for this client
-                        new Thread(() -> {
-                            PrintWriter writer = null;
-                            Scanner scanner = null;
-                            try {
-                                writer = new PrintWriter(socket.getOutputStream(), true);
-                                while (true) {
-                                    scanner = new Scanner(new File(file));
-                                    while (scanner.hasNextLine()) {
-                                        writer.println(scanner.nextLine());
-                                        Thread.sleep(this.delay);
-                                    }
-                                    Thread.sleep(10);
-                                }
-                            } catch (IOException | InterruptedException e) {
-                                System.out.println("Exception while writing to client: " + e.getMessage());
-                                e.printStackTrace();
-                            }
-                        }).start();
-                    }
-                } catch (IOException e) {
-                    System.out.println("Server exception: " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-        }
-
-    public class Client {
-        private String ip;
-        private int port;
-        private int delay;
-
-        public Client(){
-            this("127.0.0.1",1901, Mode.normal);
-        }
-
-        public Client(String ip, int port, Mode mode) {
-            this.ip = ip;
-            this.port = port;
-            switch (mode) {
-                case normal: this.delay = 0; break;
-                case slower: this.delay = 100; break;
-                case slowest: this.delay = 500; break;
-            }
-        }
-
-        public void connect (String file){
-            try (Socket socket = new Socket(this.ip, this.port)) {
-                System.out.println("Connected to " + socket.getInetAddress().getHostName() + " at " + socket.getInetAddress().getHostAddress() + " on port " + socket.getPort());
-                Scanner reader = new Scanner(socket.getInputStream());
-                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-                //writer thread
-                new Thread(() -> {
-                    Scanner scanner = null;
-                    try {
-                        while (true) {
-                            scanner = new Scanner(new File(file));
-                            while (scanner.hasNextLine()) {
-                                writer.println(scanner.nextLine());
-                                Thread.sleep(this.delay);
-                            }
-                            Thread.sleep(10);
-                        }
-                    } catch (IOException | InterruptedException e) {
-                        System.out.println("Exception while writing to server: " + e.getMessage());
-                        e.printStackTrace();
-                    }
-                }).start();
-                //read using this thread
-                while (reader.hasNext()) {
-                    System.out.println(reader.nextLine());
-                }
-                System.out.println("Server closed the connection.");
-            } catch (IOException e) {
-                System.out.println("Client exception: " + e.getMessage());
-                e.printStackTrace();
-            }
-        }
-    }
+//
+//    public class Server {
+//        int port;
+//        int delay;
+//
+//        public Server(){
+//            this(1901, TCPHandler.Mode.normal);
+//        }
+//
+//        public Server(int port, TCPHandler.Mode mode){
+//            this.port = port;
+//            switch (mode) {
+//                case normal: this.delay = 0; break;
+//                case slower: this.delay = 100; break;
+//                case slowest: this.delay = 500; break;
+//            }
+//        }
+//
+//        public void serve(String file){
+//                try (ServerSocket serverSocket = new ServerSocket(port)) {
+//                    System.out.println("Server is listening on port " + port);
+//                    while (true) {
+//                        Socket socket = serverSocket.accept();
+//                        System.out.println("New client connected: " + socket.getInetAddress().getHostAddress());
+//                        //reader threat for this client
+//                        new Thread(() -> {
+//                            Scanner reader = null;
+//                            try {
+//                                reader = new Scanner(socket.getInputStream());
+//                                while (reader.hasNext()) {
+//                                    System.out.println(socket.getInetAddress().getHostAddress() + ": " + reader.nextLine());
+//                                }
+//                                System.out.println("Client " + socket.getInetAddress().getHostAddress() + " disconnected.");
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }).start();
+//                        //writer thread for this client
+//                        new Thread(() -> {
+//                            PrintWriter writer = null;
+//                            Scanner scanner = null;
+//                            try {
+//                                writer = new PrintWriter(socket.getOutputStream(), true);
+//                                while (true) {
+//                                    scanner = new Scanner(new File(file));
+//                                    while (scanner.hasNextLine()) {
+//                                        writer.println(scanner.nextLine());
+//                                        Thread.sleep(this.delay);
+//                                    }
+//                                    Thread.sleep(10);
+//                                }
+//                            } catch (IOException | InterruptedException e) {
+//                                System.out.println("Exception while writing to client: " + e.getMessage());
+//                                e.printStackTrace();
+//                            }
+//                        }).start();
+//                    }
+//                } catch (IOException e) {
+//                    System.out.println("Server exception: " + e.getMessage());
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//
+//    public class Client {
+//        private String ip;
+//        private int port;
+//        private int delay;
+//
+//        public Client(){
+//            this("127.0.0.1",1901, Mode.normal);
+//        }
+//
+//        public Client(String ip, int port, Mode mode) {
+//            this.ip = ip;
+//            this.port = port;
+//            switch (mode) {
+//                case normal: this.delay = 0; break;
+//                case slower: this.delay = 100; break;
+//                case slowest: this.delay = 500; break;
+//            }
+//        }
+//
+//        public void connect (String file){
+//            try (Socket socket = new Socket(this.ip, this.port)) {
+//                System.out.println("Connected to " + socket.getInetAddress().getHostName() + " at " + socket.getInetAddress().getHostAddress() + " on port " + socket.getPort());
+//                Scanner reader = new Scanner(socket.getInputStream());
+//                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+//                //writer thread
+//                new Thread(() -> {
+//                    Scanner scanner = null;
+//                    try {
+//                        while (true) {
+//                            scanner = new Scanner(new File(file));
+//                            while (scanner.hasNextLine()) {
+//                                writer.println(scanner.nextLine());
+//                                Thread.sleep(this.delay);
+//                            }
+//                            Thread.sleep(10);
+//                        }
+//                    } catch (IOException | InterruptedException e) {
+//                        System.out.println("Exception while writing to server: " + e.getMessage());
+//                        e.printStackTrace();
+//                    }
+//                }).start();
+//                //read using this thread
+//                while (reader.hasNext()) {
+//                    System.out.println(reader.nextLine());
+//                }
+//                System.out.println("Server closed the connection.");
+//            } catch (IOException e) {
+//                System.out.println("Client exception: " + e.getMessage());
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 }
 
 
