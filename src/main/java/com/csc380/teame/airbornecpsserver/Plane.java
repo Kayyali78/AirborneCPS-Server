@@ -63,7 +63,7 @@ public class Plane {
 
     @Override
     public String toString() {
-        return this.ip;
+        return (this.ip + " " + this.speed);
     }
 
     @Override
