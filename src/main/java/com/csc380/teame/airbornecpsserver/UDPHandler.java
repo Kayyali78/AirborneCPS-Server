@@ -116,7 +116,7 @@ public class UDPHandler {
                         synchronized(sendlock){
                             for(Plane p : senderBuffer){
                                 byte[] buf = p.toString().getBytes(StandardCharsets.UTF_8);
-                                DatagramPacket sendpkt = new DatagramPacket(buf,buf.length,new InetSocketAddress("255.255.255.255"),21221);
+                                DatagramPacket sendpkt = new DatagramPacket(buf,buf.length,InetAddress.getByName("255.255.255.255"),21221);
                                 outSocket.send(sendpkt);
                             }
                         }
