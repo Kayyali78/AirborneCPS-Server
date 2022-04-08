@@ -1,6 +1,8 @@
 package com.csc380.teame.airbornecpsserver;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Apply filters to plane list to only planes that are part of the current
@@ -11,10 +13,41 @@ import java.util.ArrayList;
 public class CPSFilter {
 
     ArrayList<Plane> list;
-
+    HashSet<Plane> hashList = new HashSet<>();
+    HashMap<Plane, Plane> Hmap = new HashMap<>();
     public CPSFilter(ArrayList<Plane> currentList) {
         this.list = currentList;
+        this.Hmap = new HashMap<>();
+        for(Plane plane : currentList){
+            Hmap.put(plane, plane);
+        }
     }
+
+    public ArrayList<Plane> checkDups(ArrayList<Plane> ArrivalList){
+        
+        //1. dump everything new into hashmap: check dups instantly.
+        //By default, the last to trasverse will be the "Newest One";
+        //HashSet<Plane> temp = new HashSet<>(ArrivalList);
+        HashMap<Plane, Plane> temp = new HashMap<>();
+        for(Plane p : ArrivalList){
+            temp.put(p,p);
+        }
+        //2. for every old plane, calculate the new heading angle if exist and replace.
+        for(Plane p: temp.values()){
+            if(Hmap.get(p) != null){
+                double x = p.lat - Hmap.get(p).lat;
+                double y = p.lon - Hmap.get(p).lon;
+                double heading = Math.toDegrees(Math.atan2(y,x));
+                Plane a = temp.get(p);
+                if(heading < 0.0) heading += 360.0;
+                a.heading = heading;
+                Hmap.put(a, a);
+            }else{
+                Hmap.put(p,p);
+            }
+        }
+        return new ArrayList<Plane>(Hmap.values());
+    }   
 
     //check current list for duplicate entries
     public ArrayList<Plane> checkForDuplicates(ArrayList<Plane> currentList) {
