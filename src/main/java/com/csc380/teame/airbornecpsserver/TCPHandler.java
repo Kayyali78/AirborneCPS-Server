@@ -1,12 +1,13 @@
 package com.csc380.teame.airbornecpsserver;
 
-import javafx.print.Printer;
-
-import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.*;
 import java.util.List;
-import java.util.Scanner;
+
+import static java.lang.Thread.sleep;
 
 public class TCPHandler {
 
@@ -18,16 +19,28 @@ public class TCPHandler {
     List<Plane> writerBuf;
     Object rlock = new Object(), wlock = new Object();
 
-    public TCPHandler() throws InterruptedException{
+    public TCPHandler(){
+        this.port = 1901;
+        this.delay = 0;
+    }
+
+    public void fillLists(){
+
+    }
+    public void serve() throws InterruptedException {
+        port = 1901;
+        Socket socket;
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server is listening on port " + port);
+
             do {
-                Socket socket = serverSocket.accept();
+                socket = serverSocket.accept();
                 System.out.println("New client connected: " + socket.getInetAddress().getHostAddress());
                 //reader threat for this client
+                Socket finalSocket = socket;
                 new Thread(() -> {
                     try {
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(finalSocket.getInputStream()));
                         while (true) {
                             synchronized (rlock) {
                                 readerBuf.add(reader.readLine());
@@ -39,9 +52,10 @@ public class TCPHandler {
                 }).start();
 
                 //writer thread for this client
+                Socket finalSocket1 = socket;
                 new Thread(() -> {
                     try {
-                        PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+                        PrintWriter writer = new PrintWriter(finalSocket1.getOutputStream(), true);
                         while (true) {
                             synchronized (wlock) {
                                 while (writerBuf.size() > 0) {
@@ -50,7 +64,7 @@ public class TCPHandler {
                                     }
                                 }
                             }
-                            Thread.sleep(10);
+                            sleep(10);
                         }
                     } catch (IOException | InterruptedException e) {
                         System.out.println("Exception while writing to client: " + e.getMessage());
@@ -62,7 +76,7 @@ public class TCPHandler {
             System.out.println("Server exception: " + e.getMessage());
             e.printStackTrace();
         } finally {
-            Thread.sleep(500);
+            sleep(500);
         }
     }
 
@@ -116,6 +130,11 @@ public class TCPHandler {
         synchronized (rlock){
             writerBuf.addAll(arr);
         }
+    }
+
+    public static void main(String[] args) throws InterruptedException, IOException {
+        TCPHandler tcp = new TCPHandler();
+
     }
 }
 
