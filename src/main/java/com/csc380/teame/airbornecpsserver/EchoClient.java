@@ -65,7 +65,7 @@ public class EchoClient{
 
     public static void main(String[] args){
         EchoClient c1 = new EchoClient("127.0.0.1",1901, TCPHandler.Mode.normal);
-        File file = new File("northboundloop.txt");
+        File file = new File("southboundloop.txt");
         c1.connect(file);
     }
 }

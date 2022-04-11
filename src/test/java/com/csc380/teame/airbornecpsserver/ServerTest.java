@@ -15,9 +15,10 @@ String test6 = "java -jar tcpbeacons.jar -client 127.0.0.1 1901 northbound.txt";
 String test7 = "java -jar tcpbeacons.jar -client 127.0.0.1 1901 southbound.txt slow";
 String test8 = "java -jar tcpbeacons.jar -client 127.0.0.1 1901 northbound.txt slow slow";
 
-    public void testServe() throws InterruptedException, IOException {
+    public void testServe() throws InterruptedException {
         TCPHandler tcp1 = new TCPHandler(test3.split(" "));
         tcp1.serve();
+
 
         //TCPHandler tcp2 = new TCPHandler(test7.split(" "));
         //TCPHandler tcp3 = new TCPHandler();
