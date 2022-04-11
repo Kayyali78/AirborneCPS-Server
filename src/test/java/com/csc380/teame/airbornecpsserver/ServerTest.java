@@ -20,7 +20,7 @@ String test8 = "java -jar tcpbeacons.jar -client 127.0.0.1 1901 northbound.txt s
         tcp1.serve();
 
 
-        //TCPHandler tcp2 = new TCPHandler(test7.split(" "));
+        TCPHandler tcp2 = new TCPHandler(test7.split(" "));
         //TCPHandler tcp3 = new TCPHandler();
         //tcp3.serve();
         //UDPHandler udp1 = new UDPHandler();
