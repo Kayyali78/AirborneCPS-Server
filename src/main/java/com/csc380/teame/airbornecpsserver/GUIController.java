@@ -1,5 +1,6 @@
 package com.csc380.teame.airbornecpsserver;
 
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
@@ -142,6 +143,9 @@ public class GUIController implements Initializable {
     public static final String Plane215 = "https://i.imgur.com/slsa5yW.png";
     public static final String Plane270 = "https://i.imgur.com/xdQD8UZ.png";
     public static final String Plane315 = "https://i.imgur.com/UlmtD03.png";
+
+    public GUIController() throws FileNotFoundException {
+    }
 
     @FXML
     public void r_map(ActionEvent event) {

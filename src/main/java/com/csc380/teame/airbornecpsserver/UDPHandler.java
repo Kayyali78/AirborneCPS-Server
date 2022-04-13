@@ -24,6 +24,7 @@ public class UDPHandler {
     public UDPHandler() {
         this(21221, mode.normal);
     }
+
     public ArrayList<String> getBuffer(){
         ArrayList<String> buffer = new ArrayList<String>();
         synchronized(recvlock){
