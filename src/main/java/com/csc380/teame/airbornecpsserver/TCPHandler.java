@@ -1,12 +1,12 @@
 package com.csc380.teame.airbornecpsserver;
 
-import javafx.print.Printer;
-
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
+import static java.lang.Thread.sleep;
 
 public class TCPHandler {
 
@@ -18,19 +18,56 @@ public class TCPHandler {
     List<Plane> writerBuf;
     Object rlock = new Object(), wlock = new Object();
 
-    public TCPHandler() throws InterruptedException{
+    public TCPHandler() throws FileNotFoundException {
+        this.port = 1901;
+        this.delay = 0;
+        fillList();
+    }
+
+    public void fillList() throws FileNotFoundException {
+        readerBuf = new ArrayList<>();
+        writerBuf = new ArrayList<>();
+        ArrayList<Plane> planes = new ArrayList<>();
+
+        FileInputStream fileInput = new FileInputStream("C:\\Users\\scarl\\projects\\AirborneCPS-Server\\northboundloop.txt");
+        Scanner s1 = new Scanner(fileInput);
+
+        while (s1.hasNextLine()){
+            String beacon = s1.nextLine();
+            try {
+                Plane p = new Plane(beacon);
+                planes.add(p);
+            } catch (Exception e) {
+                Plane p = new Plane("n00:00:00:59:53:2En192.168.0.2n47.519961n10.698863n3050.078383");
+                System.out.println("Beacon used is exception");
+                planes.add(p);
+            }
+        }
+        System.out.println("Size of list is: "+planes.size());
+        s1.close();
+        write(planes);
+    }
+
+    public void serve() throws InterruptedException {
+        port = 1901;
+        Socket socket;
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server is listening on port " + port);
+
             do {
-                Socket socket = serverSocket.accept();
+                socket = serverSocket.accept();
                 System.out.println("New client connected: " + socket.getInetAddress().getHostAddress());
+
                 //reader threat for this client
+
+                Socket finalSocket = socket;
                 new Thread(() -> {
                     try {
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(finalSocket.getInputStream()));
                         while (true) {
                             synchronized (rlock) {
-                                readerBuf.add(reader.readLine());
+                                //readerBuf.add(reader.readLine());
+                                System.out.println(reader.readLine());
                             }
                         }
                     } catch (IOException e) {
@@ -39,30 +76,31 @@ public class TCPHandler {
                 }).start();
 
                 //writer thread for this client
+                Socket finalSocket1 = socket;
                 new Thread(() -> {
                     try {
-                        PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+                        PrintWriter writer = new PrintWriter(finalSocket1.getOutputStream(), true);
                         while (true) {
                             synchronized (wlock) {
                                 while (writerBuf.size() > 0) {
                                     for (Plane p : writerBuf) {
                                         writer.write(p.getBeacon());
+                                        //System.out.println(p.getBeacon());
                                     }
                                 }
                             }
-                            Thread.sleep(10);
+                            sleep(10);
                         }
                     } catch (IOException | InterruptedException e) {
                         System.out.println("Exception while writing to client: " + e.getMessage());
                         e.printStackTrace();
                     }
                 }).start();
+
             } while (true);
         } catch (IOException e) {
             System.out.println("Server exception: " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            Thread.sleep(500);
         }
     }
 
@@ -116,6 +154,12 @@ public class TCPHandler {
         synchronized (rlock){
             writerBuf.addAll(arr);
         }
+        System.out.println("Size of writerBuf is: "+writerBuf.size());
+    }
+
+    public static void main(String[] args) throws InterruptedException, IOException {
+        TCPHandler tcp = new TCPHandler();
+
     }
 }
 
