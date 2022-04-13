@@ -126,7 +126,7 @@ public class Client {
     public static void main(String[] args){
         Client c1 = new Client();
         File file = new File("southboundloop.txt");
-        c1.connect(String.valueOf(file));
+        c1.connect();
 
     }
 }

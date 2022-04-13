@@ -1,6 +1,7 @@
 package com.csc380.teame.airbornecpsserver;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,19 +9,18 @@ import java.util.Scanner;
 
 import static java.lang.Thread.sleep;
 
-public class TCPHandler {
+public class TCPHandler implements Runnable{
 
     protected enum Mode { normal, slower, slowest }
     private final static String helptext = "Syntax: java -jar tcpbeacons.jar (-server PORT? FILENAME | -client IP PORT FILENAME) slow? slow?";
-    int port, delay;
+    private Socket clientSocket = new Socket();
 
     List<String> readerBuf;
     List<Plane> writerBuf;
     Object rlock = new Object(), wlock = new Object();
 
-    public TCPHandler() throws FileNotFoundException {
-        this.port = 1901;
-        this.delay = 0;
+    public TCPHandler(Socket socket) throws FileNotFoundException {
+        this.clientSocket = socket;
         fillList();
     }
 
@@ -29,7 +29,7 @@ public class TCPHandler {
         writerBuf = new ArrayList<>();
         ArrayList<Plane> planes = new ArrayList<>();
 
-        FileInputStream fileInput = new FileInputStream("C:\\Users\\scarl\\projects\\AirborneCPS-Server\\northboundloop.txt");
+        FileInputStream fileInput = new FileInputStream("northboundloop.txt");
         Scanner s1 = new Scanner(fileInput);
 
         while (s1.hasNextLine()){
@@ -48,63 +48,39 @@ public class TCPHandler {
         write(planes);
     }
 
-    public void serve() throws InterruptedException {
-        port = 1901;
-        Socket socket;
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Server is listening on port " + port);
+    public void run() {
+        PrintWriter out = null;
+        BufferedReader in = null;
 
-            do {
-                socket = serverSocket.accept();
-                System.out.println("New client connected: " + socket.getInetAddress().getHostAddress());
-
-                //reader threat for this client
-
-                Socket finalSocket = socket;
-                new Thread(() -> {
-                    try {
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(finalSocket.getInputStream()));
-
-                        // TODO: 4/13/2022 changed while(true) to (reader.readLine() != null) to prevent infinite loop over null values when stream empties-line 69
-
-                        while (reader.readLine() != null) {
-                            synchronized (rlock) {
-                                //readerBuf.add(reader.readLine());
-                                System.out.println(reader.readLine());
-                            }
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }).start();
-
-                //writer thread for this client
-                Socket finalSocket1 = socket;
-                new Thread(() -> {
-                    try {
-                        PrintWriter writer = new PrintWriter(finalSocket1.getOutputStream(), true);
-                        while (true) {
-                            synchronized (wlock) {
-                                while (writerBuf.size() > 0) {
-                                    for (Plane p : writerBuf) {
-                                        writer.write(p.getBeacon());
-                                        //System.out.println(p.getBeacon());
-                                    }
-                                }
-                            }
-                            sleep(10);
-                        }
-                    } catch (IOException | InterruptedException e) {
-                        System.out.println("Exception while writing to client: " + e.getMessage());
-                        e.printStackTrace();
-                    }
-                }).start();
-
-            } while (true);
-        } catch (IOException e) {
-            System.out.println("Server exception: " + e.getMessage());
-            e.printStackTrace();
+        //get outputstream of client
+        try {
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
+
+        //get inputstream of client
+        try {
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        String line = "";
+
+        while (true) {
+            try {
+                if ((line = in.readLine()) == null) break;
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
+
+            //writing the received message from client
+            System.out.println("Sent from the client: "+line+"\n");
+            out.println(line);
+        }
+
     }
 
     public TCPHandler(String[] args){
@@ -145,25 +121,28 @@ public class TCPHandler {
         }
     }
 
-    public List<String> getTCPBeacon() {
-        List arr;
-        synchronized (rlock) {
-            arr = List.copyOf(readerBuf);
+    public void updateSenderBuffer(ArrayList<Plane> in){
+        try{
+            synchronized(wlock) {
+                writerBuf = new ArrayList<>(in);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
         }
-        return arr;
+    }
+
+    public List<Plane> getBuffer() {
+        updateSenderBuffer((ArrayList<Plane>) writerBuf);
+        return writerBuf;
     }
 
     public void write(List<Plane> arr){
         synchronized (rlock){
             writerBuf.addAll(arr);
         }
-        System.out.println("Size of writerBuf is: "+writerBuf.size());
+        //System.out.println("Size of writerBuf is: "+writerBuf.size());
     }
 
-    public static void main(String[] args) throws InterruptedException, IOException {
-        TCPHandler tcp = new TCPHandler();
-
-    }
 }
 
 
