@@ -2,6 +2,7 @@ package com.csc380.teame.airbornecpsserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Scanner;
 
 import static java.lang.Thread.sleep;
@@ -25,6 +26,53 @@ public class Client {
             case slowest -> this.delay = 500;
         }
     }
+
+    public void connect() {
+        try (Socket socket = new Socket(this.ip, this.port)) {
+            System.out.println("Connected to " + socket.getInetAddress().getHostName() + " at " +
+                    socket.getInetAddress().getHostAddress() + " on port " + socket.getPort());
+            // writing to server
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            while (true) {
+                Scanner scanner = new Scanner(System.in);
+                while (scanner.hasNextLine()) {
+                    out.println(scanner.nextLine());
+                    System.out.println(scanner.nextLine());
+                    sleep(delay);
+                }
+
+                // reading from server
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                // object of scanner class
+                Scanner sc = new Scanner(System.in);
+                String line = null;
+
+                while (!"exit".equalsIgnoreCase(line)) {
+
+                    // reading from user
+                    line = sc.nextLine();
+
+                    // sending the user input to server
+                    out.println(line);
+                    out.flush();
+
+                    // displaying server reply
+                    System.out.println("Server replied " + in.readLine());
+                }
+
+                // closing the scanner object
+                sc.close();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public void connect (String file){
         try (Socket socket = new Socket(this.ip, this.port)) {
