@@ -13,6 +13,7 @@ public class Server {
     List<String> readerBuf;
     List<Plane> writerBuf;
     Object rlock = new Object(), wlock = new Object();
+    TCPHandler clientSock;
 
     public Server(){
         this(1901, TCPHandler.Mode.normal);
@@ -51,7 +52,7 @@ public class Server {
                         .getHostAddress());
 
                 // create a new thread object
-                TCPHandler clientSock = new TCPHandler(client);
+                clientSock = new TCPHandler(client);
 
                 // This thread will handle the client
                 // separately
@@ -120,6 +121,9 @@ public class Server {
         }
     }
 
+    public TCPHandler returnTCPHandler(){
+        return clientSock;
+    }
     public static void main(String[] args){
         Server server = new Server();
         try {

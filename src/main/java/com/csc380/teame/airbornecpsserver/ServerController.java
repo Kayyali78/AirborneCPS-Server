@@ -31,7 +31,7 @@ public class ServerController {
     BoundingBox bbox = new BoundingBox(30.8389, 50.8229, -100.9962, -40.5226);
     public static final Object openskyLock = new Object();
     UDPHandler udpHandler;
-    TCPHandler tcpHandler;
+    Server server;
 
     ServerController() throws FileNotFoundException {
         ListUDP = new ArrayList<>();
@@ -39,14 +39,14 @@ public class ServerController {
         ListTCP = new ArrayList<>();
         ListUDP = Plane.getExamplePlanes();
         udpHandler = new UDPHandler();
-        tcpHandler = new TCPHandler();
+        server = new Server();
         try{
             new Thread(){
                 @Override
                 public void run() {
                     try{
                         udpHandler.serve();
-                        tcpHandler.serve();
+                        server.serve();
                     }catch(Exception e){
                         e.printStackTrace();
                     }
@@ -75,9 +75,10 @@ public class ServerController {
     
     public ArrayList<Plane> getTCPList() {
         ArrayList<Plane> temp = new ArrayList<>();
-        for(String s : tcpHandler.getBuffer()) {
+        TCPHandler tcpHandler = server.returnTCPHandler();
+        for(Plane s : tcpHandler.getBuffer()) {
             try {
-                temp.add(new Plane(s));
+                temp.add(s);
         } catch (Exception e) {
                 e.printStackTrace();
             }
