@@ -1,5 +1,6 @@
 package com.csc380.teame.airbornecpsserver;
 
+import java.io.FileNotFoundException;
 import java.lang.reflect.Array;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import org.opensky.model.StateVector;
 import java.time.format.DateTimeFormatter;
 import java.time.Instant;
 import java.time.LocalDateTime;
+
 public class ServerController {
     DatagramSocket socket;
     ArrayList<Plane> ListTCP;
@@ -29,19 +31,22 @@ public class ServerController {
     BoundingBox bbox = new BoundingBox(30.8389, 50.8229, -100.9962, -40.5226);
     public static final Object openskyLock = new Object();
     UDPHandler udpHandler;
+    TCPHandler tcpHandler;
 
-    ServerController(){
+    ServerController() throws FileNotFoundException {
         ListUDP = new ArrayList<>();
         ListADSB = new ArrayList<>();
         ListTCP = new ArrayList<>();
         ListUDP = Plane.getExamplePlanes();
         udpHandler = new UDPHandler();
+        tcpHandler = new TCPHandler();
         try{
             new Thread(){
                 @Override
                 public void run() {
                     try{
                         udpHandler.serve();
+                        tcpHandler.serve();
                     }catch(Exception e){
                         e.printStackTrace();
                     }
@@ -51,8 +56,6 @@ public class ServerController {
         }catch(Exception e){
             e.printStackTrace();
         }
-
-
     }
     
     public ArrayList<Plane> getUDPList(){
@@ -71,7 +74,16 @@ public class ServerController {
     }
     
     public ArrayList<Plane> getTCPList() {
-        return ListUDP;
+        ArrayList<Plane> temp = new ArrayList<>();
+        for(String s : tcpHandler.getBuffer()) {
+            try {
+                temp.add(new Plane(s));
+        } catch (Exception e) {
+                e.printStackTrace();
+            }
+            CPSFilter cpsFilter = new CPSFilter(ListTCP);
+            ListTCP = cpsFilter.checkForDuplicates(temp);
+            return ListTCP;
     }
     
     public ArrayList<Plane> getADSBList() {
@@ -112,7 +124,6 @@ public class ServerController {
         }
         //return ListUDP;
     }
-
     public LatLong[] getHistoryOpensky(Plane p){
         if(p.isADSB == false){
             throw new IllegalStateException("Not an Opensky plane");
@@ -139,7 +150,7 @@ public class ServerController {
         }
     }
 
-    public ArrayList<Plane> getSomePlane(Plane p){
+    public ArrayList<Plane>getSomePlane(Plane p){
         ArrayList<Plane> arr= new ArrayList<>();
         if(p.isADSB == false){
             throw new IllegalStateException("Not an Opensky plane");
