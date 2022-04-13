@@ -1,6 +1,7 @@
 package com.csc380.teame.airbornecpsserver;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +70,7 @@ public class TCPHandler implements Runnable{
 
         while (true) {
             try {
-                if (!((line = in.readLine()) != null)) break;
+                if ((line = in.readLine()) == null) break;
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -120,19 +121,26 @@ public class TCPHandler implements Runnable{
         }
     }
 
-    public List<String> getTCPBeacon() {
-        List arr;
-        synchronized (rlock) {
-            arr = List.copyOf(readerBuf);
+    public void updateSenderBuffer(ArrayList<Plane> in){
+        try{
+            synchronized(wlock) {
+                writerBuf = new ArrayList<>(in);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
         }
-        return arr;
+    }
+
+    public List<Plane> getBuffer() {
+        updateSenderBuffer((ArrayList<Plane>) writerBuf);
+        return writerBuf;
     }
 
     public void write(List<Plane> arr){
         synchronized (rlock){
             writerBuf.addAll(arr);
         }
-        System.out.println("Size of writerBuf is: "+writerBuf.size());
+        //System.out.println("Size of writerBuf is: "+writerBuf.size());
     }
 
 }
