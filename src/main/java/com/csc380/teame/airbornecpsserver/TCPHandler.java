@@ -64,7 +64,10 @@ public class TCPHandler {
                 new Thread(() -> {
                     try {
                         BufferedReader reader = new BufferedReader(new InputStreamReader(finalSocket.getInputStream()));
-                        while (true) {
+
+                        // TODO: 4/13/2022 changed while(true) to (reader.readLine() != null) to prevent infinite loop over null values when stream empties-line 69
+
+                        while (reader.readLine() != null) {
                             synchronized (rlock) {
                                 //readerBuf.add(reader.readLine());
                                 System.out.println(reader.readLine());

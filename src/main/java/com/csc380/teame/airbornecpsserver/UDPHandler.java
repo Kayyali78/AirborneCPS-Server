@@ -1,10 +1,7 @@
 package com.csc380.teame.airbornecpsserver;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetSocketAddress;
-import java.net.SocketException;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -116,7 +113,7 @@ public class UDPHandler {
                         synchronized(sendlock){
                             for(Plane p : senderBuffer){
                                 byte[] buf = p.toString().getBytes(StandardCharsets.UTF_8);
-                                DatagramPacket sendpkt = new DatagramPacket(buf,buf.length,InetAddress.getByName("255.255.255.255"),21221);
+                                DatagramPacket sendpkt = new DatagramPacket(buf,buf.length, InetAddress.getByName("255.255.255.255"),21221);
                                 outSocket.send(sendpkt);
                             }
                         }

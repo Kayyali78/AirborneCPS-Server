@@ -5,6 +5,8 @@ import java.util.Objects;
 
 import org.opensky.model.StateVector;
 
+import static java.lang.Double.parseDouble;
+
 /**
  * A Plane Class
  * Members:
@@ -44,11 +46,12 @@ public class Plane {
         String[] arr = beacon.split("n");
         mac = arr[1];
         ip = arr[2];
-        lat = Double.parseDouble(arr[3]);
-        lon = Double.parseDouble(arr[4]);
-        alt = Double.parseDouble(arr[5]);
+        lat = parseDouble(arr[3]);
+        lon = parseDouble(arr[4]);
+        alt = parseDouble(arr[5]);
         speed = 0;
     }
+
     Plane(StateVector sv){
         this.SV = sv;
         mac = sv.getIcao24();

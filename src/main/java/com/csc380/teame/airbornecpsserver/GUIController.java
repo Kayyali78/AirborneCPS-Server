@@ -280,7 +280,7 @@ public void backgroundupdate() {
         }
 
 
-        // add the Ployline which extends Mapshape to map
+        // add the Plotline which extends Mapshape to map
 
     }
     public void toMarkers() {

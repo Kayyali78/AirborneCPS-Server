@@ -29,6 +29,7 @@ public class ServerController {
     BoundingBox bbox = new BoundingBox(30.8389, 50.8229, -100.9962, -40.5226);
     public static final Object openskyLock = new Object();
     UDPHandler udpHandler;
+
     ServerController(){
         ListUDP = new ArrayList<>();
         ListADSB = new ArrayList<>();
@@ -111,6 +112,7 @@ public class ServerController {
         }
         //return ListUDP;
     }
+
     public LatLong[] getHistoryOpensky(Plane p){
         if(p.isADSB == false){
             throw new IllegalStateException("Not an Opensky plane");
@@ -137,7 +139,7 @@ public class ServerController {
         }
     }
 
-    public ArrayList<Plane>getSomePlane(Plane p){
+    public ArrayList<Plane> getSomePlane(Plane p){
         ArrayList<Plane> arr= new ArrayList<>();
         if(p.isADSB == false){
             throw new IllegalStateException("Not an Opensky plane");

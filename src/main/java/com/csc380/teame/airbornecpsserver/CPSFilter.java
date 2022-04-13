@@ -24,7 +24,7 @@ public class CPSFilter {
     }
 
     public ArrayList<Plane> checkDups(ArrayList<Plane> ArrivalList){
-        
+
         //1. dump everything new into hashmap: check dups instantly.
         //By default, the last to trasverse will be the "Newest One";
         //HashSet<Plane> temp = new HashSet<>(ArrivalList);
@@ -47,7 +47,7 @@ public class CPSFilter {
             }
         }
         return new ArrayList<Plane>(Hmap.values());
-    }   
+    }
 
     //check current list for duplicate entries
     public ArrayList<Plane> checkForDuplicates(ArrayList<Plane> currentList) {
