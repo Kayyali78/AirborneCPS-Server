@@ -68,4 +68,9 @@ public class CPSFilter {
         }
         return newList;
     }
+
+    //only return planes within a certain distance from current player
+    public ArrayList<Plane> getLocalPlaneList(ArrayList<Plane> currentList) {
+        return currentList;
+    }
 }
