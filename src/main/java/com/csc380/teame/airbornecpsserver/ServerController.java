@@ -59,6 +59,8 @@ public class ServerController {
         }
     }
 
+
+
     public ArrayList<Plane> getUDPList() {
         ArrayList<Plane> temp = new ArrayList<>();
         ArrayList<String> udpBuf = udpHandler.getBuffer();
@@ -73,6 +75,22 @@ public class ServerController {
         ListUDP = cpsFilter.checkForDuplicates(temp);
         return ListUDP;
         //return ListUDP;
+    }
+
+    public void setUDPList(ArrayList<Plane> list) {
+        this.udpHandler.updateSenderBuffer(list);
+    }
+
+    public void setTCPList(ArrayList<Plane> list){
+        this.server.setTCPList(list);
+    }
+    
+    public ArrayList<Plane> getUDPwoFilter(){
+        return ListUDP;
+    }
+
+    public ArrayList<Plane> getTCPwoFilter(){
+        return ListTCP;
     }
 
     public ArrayList<Plane> getTCPList() {

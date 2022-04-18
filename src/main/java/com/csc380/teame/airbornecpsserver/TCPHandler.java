@@ -15,14 +15,37 @@ public class TCPHandler implements Runnable{
     private final static String helptext = "Syntax: java -jar tcpbeacons.jar (-server PORT? FILENAME | -client IP PORT FILENAME) slow? slow?";
     private Socket clientSocket = new Socket();
 
-    List<String> readerBuf;
-    List<Plane> writerBuf;
-    Object rlock = new Object(), wlock = new Object();
+    ArrayList<String> readerBuf;
+    static ArrayList<Plane> writerBuf;
+    // Object rlock = new Object(), wlock = new Object();
 
     public TCPHandler(Socket socket) throws FileNotFoundException {
         this.clientSocket = socket;
         fillList();
     }
+
+    public static void updateSenderBuffer(ArrayList<Plane> in) {
+        try {
+            synchronized (writerBuf) {
+                writerBuf = new ArrayList<>(in);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<Plane> getBuffer() {
+        updateSenderBuffer((ArrayList<Plane>) writerBuf);
+        return writerBuf;
+    }
+
+    public void write(List<Plane> arr) {
+        synchronized (writerBuf) {
+            writerBuf.addAll(arr);
+        }
+        // System.out.println("Size of writerBuf is: "+writerBuf.size());
+    }
+
 
     public void fillList() throws FileNotFoundException {
         readerBuf = new ArrayList<>();
@@ -32,7 +55,6 @@ public class TCPHandler implements Runnable{
         path = path.substring(6, path.length());
         FileInputStream fileInput = new FileInputStream(path);
         Scanner s1 = new Scanner(fileInput);
-
         while (s1.hasNextLine()){
             String beacon = s1.nextLine();
             try {
@@ -122,27 +144,7 @@ public class TCPHandler implements Runnable{
         }
     }
 
-    public void updateSenderBuffer(ArrayList<Plane> in){
-        try{
-            synchronized(wlock) {
-                writerBuf = new ArrayList<>(in);
-            }
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    public List<Plane> getBuffer() {
-        updateSenderBuffer((ArrayList<Plane>) writerBuf);
-        return writerBuf;
-    }
-
-    public void write(List<Plane> arr){
-        synchronized (rlock){
-            writerBuf.addAll(arr);
-        }
-        //System.out.println("Size of writerBuf is: "+writerBuf.size());
-    }
+    
 
     public static void main(String[] args){
         
