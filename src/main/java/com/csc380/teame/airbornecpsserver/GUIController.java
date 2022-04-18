@@ -143,14 +143,22 @@ public class GUIController implements Initializable {
     public static Plane selectedPlaneHistory = null;
     public static final String iconPath = "https://i.imgur.com/23cmzJk.png";
     public static final String PlaneBlue = "https://i.imgur.com/5UoLwPH.png";
-    public static final String Plane0 = "https://i.imgur.com/eZNk3To.png";
-    public static final String Plane45 = "https://i.imgur.com/DBXPXJS.png";
-    public static final String Plane90 = "https://i.imgur.com/tKkF2M1.png";
-    public static final String Plane135 = "https://i.imgur.com/vhhyrMx.png";
-    public static final String Plane180 = "https://i.imgur.com/4YMed9r.png";
-    public static final String Plane215 = "https://i.imgur.com/slsa5yW.png";
-    public static final String Plane270 = "https://i.imgur.com/xdQD8UZ.png";
-    public static final String Plane315 = "https://i.imgur.com/UlmtD03.png";
+    public static final String Plane0 = "https://i.imgur.com/VVbEWFQ.png";
+    public static final String Plane22_5 = "https://i.imgur.com/QsY95XU.png";
+    public static final String Plane45 = "https://i.imgur.com/cZHwaUF.png";
+    public static final String Plane67_5 = "https://i.imgur.com/jMF3BB6.png";
+    public static final String Plane90 = "https://i.imgur.com/UHfoEa8.png";
+    public static final String Plane112_5 = "https://i.imgur.com/ZfMRkbz.png";
+    public static final String Plane135 = "https://i.imgur.com/F4twXWO.png";
+    public static final String Plane157_5 = "https://i.imgur.com/XtsYSf3.png";
+    public static final String Plane180 = "https://i.imgur.com/SRg3wfq.png";
+    public static final String Plane202_5 = "https://i.imgur.com/TB8KGOc.png";
+    public static final String Plane225 = "https://i.imgur.com/NNmYKTp.png";
+    public static final String Plane247_5 = "https://i.imgur.com/toeMBlj.png";
+    public static final String Plane270 = "https://i.imgur.com/L2SMO2o.png";
+    public static final String Plane292_5 = "https://i.imgur.com/WA54tCM.png";
+    public static final String Plane315 = "https://i.imgur.com/ndQciWG.png";
+    public static final String Plane337_5 = "https://i.imgur.com/VPt0FtI.png";
     // PipedOutputStream pout = new PipedOutputStream(this.pipeIn);
     // PrintStream printStream = new PrintStream(new CustomOutputStream(termial));
 
@@ -329,39 +337,36 @@ public class GUIController implements Initializable {
         markersmap = new HashMap<String, Marker>();
         // MarkerOptions options = new MarkerOptions();
 
-        for (Plane p : ListADSB.getItems()) {
-            MarkerOptionsAlt options = new MarkerOptionsAlt();
-            options.rotation((int) p.heading);
-            if (p.heading <= (0 + 12.25) || p.heading >= (360 - 12.25)) {
+        if (p.heading <= (0 + 12.25) || p.heading >= (360 - 12.25)) {
                 options.icon(Plane0);
             } else if (p.heading <= (335 + 12.25) && p.heading >= (335 - 12.25)) {
-                options.icon(Plane315);
+                options.icon(Plane337_5);
             } else if (p.heading <= (310 + 12.25) && p.heading >= (310 - 12.25)) {
-                options.icon(Plane270);
-            } else if (p.heading <= (285 + 12.25) && p.heading >= (285 - 12.25)) {
-                options.icon(Plane215);
-            } else if (p.heading <= (260 + 12.25) && p.heading >= (260 - 12.25)) {
-                options.icon(Plane180);
-            } else if (p.heading <= (235 + 12.25) && p.heading >= (235 - 12.25)) {
-                options.icon(Plane135);
-            } else if (p.heading <= (210 + 12.25) && p.heading >= (210 - 12.25)) {
-                options.icon(Plane90);
-            } else if (p.heading <= (185 + 12.25) && p.heading >= (185 - 12.25)) {
-                options.icon(Plane45);
-            } else if (p.heading <= (160 + 12.25) && p.heading >= (160 - 12.25)) {
                 options.icon(Plane315);
-            } else if (p.heading <= (135 + 12.25) && p.heading >= (135 - 12.25)) {
+            } else if (p.heading <= (285 + 12.25) && p.heading >= (285 - 12.25)) {
+                options.icon(Plane292_5);
+            } else if (p.heading <= (260 + 12.25) && p.heading >= (260 - 12.25)) {
                 options.icon(Plane270);
-            } else if (p.heading <= (110 + 12.25) && p.heading >= (110 - 12.25)) {
-                options.icon(Plane215);
-            } else if (p.heading <= (85 + 12.25) && p.heading >= (85 - 12.25)) {
+            } else if (p.heading <= (235 + 12.25) && p.heading >= (235 - 12.25)) {
+                options.icon(Plane247_5);
+            } else if (p.heading <= (210 + 12.25) && p.heading >= (210 - 12.25)) {
+                options.icon(Plane225);
+            } else if (p.heading <= (185 + 12.25) && p.heading >= (185 - 12.25)) {
+                options.icon(Plane202_5);
+            } else if (p.heading <= (160 + 12.25) && p.heading >= (160 - 12.25)) {
                 options.icon(Plane180);
-            } else if (p.heading <= (60 + 12.25) && p.heading >= (60 - 12.25)) {
-                options.icon(Plane135);
-            } else if (p.heading <= (35 + 12.25) && p.heading >= (35 - 12.25)) {
+            } else if (p.heading <= (135 + 12.25) && p.heading >= (135 - 12.25)) {
+                options.icon(Plane157_5);
+            } else if (p.heading <= (110 + 12.25) && p.heading >= (110 - 12.25)) {
+                options.icon(Plane112_5);
+            } else if (p.heading <= (85 + 12.25) && p.heading >= (85 - 12.25)) {
                 options.icon(Plane90);
-            } else if (p.heading <= (10 + 12.25)) {
+            } else if (p.heading <= (60 + 12.25) && p.heading >= (60 - 12.25)) {
+                options.icon(Plane67_5);
+            } else if (p.heading <= (35 + 12.25) && p.heading >= (35 - 12.25)) {
                 options.icon(Plane45);
+            } else if (p.heading <= (10 + 12.25)) {
+                options.icon(Plane22_5);
             }
             options.position(new LatLong(p.lat, p.lon));
             Marker marker = new Marker(options);
@@ -383,25 +388,37 @@ public class GUIController implements Initializable {
     public Marker toMarker(Plane p) {
         MarkerOptionsAlt options = new MarkerOptionsAlt();
         options.rotation((int) p.heading);
-        if (p.heading <= (0 + 22.5) || p.heading >= (360 - 22.5)) {
-            options.icon(Plane0);
-        } else if (p.heading <= (315 + 22.5) && p.heading >= (315 - 22.5)) {
-            options.icon(Plane315);
-        } else if (p.heading <= (270 + 22.5) && p.heading >= (270 - 22.5)) {
-            options.icon(Plane270);
-        } else if (p.heading <= (215 + 22.5) && p.heading >= (215 - 22.5)) {
-            options.icon(Plane215);
-        } else if (p.heading <= (180 + 22.5) && p.heading >= (180 - 22.5)) {
-            options.icon(Plane180);
-        } else if (p.heading <= (135 + 22.5) && p.heading >= (135 - 22.5)) {
-            options.icon(Plane135);
-        } else if (p.heading <= (90 + 22.5) && p.heading >= (90 - 22.5)) {
-            options.icon(Plane90);
-        } else if (p.heading <= (45 + 22.5) && p.heading >= (45 - 22.5)) {
-            options.icon(Plane45);
-        } else {
-            options.icon(iconPath);
-        }
+        if (p.heading <= (0 + 12.25) || p.heading >= (360 - 12.25)) {
+                options.icon(Plane0);
+            } else if (p.heading <= (335 + 12.25) && p.heading >= (335 - 12.25)) {
+                options.icon(Plane337_5);
+            } else if (p.heading <= (310 + 12.25) && p.heading >= (310 - 12.25)) {
+                options.icon(Plane315);
+            } else if (p.heading <= (285 + 12.25) && p.heading >= (285 - 12.25)) {
+                options.icon(Plane292_5);
+            } else if (p.heading <= (260 + 12.25) && p.heading >= (260 - 12.25)) {
+                options.icon(Plane270);
+            } else if (p.heading <= (235 + 12.25) && p.heading >= (235 - 12.25)) {
+                options.icon(Plane247_5);
+            } else if (p.heading <= (210 + 12.25) && p.heading >= (210 - 12.25)) {
+                options.icon(Plane225);
+            } else if (p.heading <= (185 + 12.25) && p.heading >= (185 - 12.25)) {
+                options.icon(Plane202_5);
+            } else if (p.heading <= (160 + 12.25) && p.heading >= (160 - 12.25)) {
+                options.icon(Plane180);
+            } else if (p.heading <= (135 + 12.25) && p.heading >= (135 - 12.25)) {
+                options.icon(Plane157_5);
+            } else if (p.heading <= (110 + 12.25) && p.heading >= (110 - 12.25)) {
+                options.icon(Plane112_5);
+            } else if (p.heading <= (85 + 12.25) && p.heading >= (85 - 12.25)) {
+                options.icon(Plane90);
+            } else if (p.heading <= (60 + 12.25) && p.heading >= (60 - 12.25)) {
+                options.icon(Plane67_5);
+            } else if (p.heading <= (35 + 12.25) && p.heading >= (35 - 12.25)) {
+                options.icon(Plane45);
+            } else if (p.heading <= (10 + 12.25)) {
+                options.icon(Plane22_5);
+            }
         options.position(new LatLong(p.lat, p.lon));
         return new Marker(options);
     }
