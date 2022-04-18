@@ -135,11 +135,11 @@ public class GUIController implements Initializable {
     private final Object ADSBlock = new Object();
     private static boolean updateStatus = false;
     protected HashSet<Marker> markers = new HashSet<Marker>();
-    protected HashMap<String, Marker> markersmap = new HashMap<String, Marker>();
+    protected HashMap<Plane, Marker> markersmap = new HashMap<Plane, Marker>();
     private DecimalFormat formatter = new DecimalFormat("###.00000");
-    private HashSet<Marker> ADSBMarker = new HashSet<>();
-    private HashSet<Marker> TCPMarker = new HashSet<>();
-    private HashSet<Marker> UDPMarker = new HashSet<>();
+    // private HashSet<Marker> ADSBMarker = new HashSet<>();
+    // private HashSet<Marker> TCPMarker = new HashSet<>();
+    // private HashSet<Marker> UDPMarker = new HashSet<>();
     public static Plane selectedPlaneHistory = null;
     public static final String iconPath = "https://i.imgur.com/23cmzJk.png";
     public static final String PlaneBlue = "https://i.imgur.com/5UoLwPH.png";
@@ -159,6 +159,7 @@ public class GUIController implements Initializable {
     public static final String Plane292_5 = "https://i.imgur.com/WA54tCM.png";
     public static final String Plane315 = "https://i.imgur.com/ndQciWG.png";
     public static final String Plane337_5 = "https://i.imgur.com/VPt0FtI.png";
+    
     // PipedOutputStream pout = new PipedOutputStream(this.pipeIn);
     // PrintStream printStream = new PrintStream(new CustomOutputStream(termial));
 
@@ -217,7 +218,8 @@ public class GUIController implements Initializable {
     void adsbclicked(MouseEvent event) {
         Plane p = ListADSB.getSelectionModel().getSelectedItem();
         updateLabel(p);
-        map.removeMarker(markersmap.get(p.mac));
+        //mapmarkers.put(
+        map.removeMarker(markersmap.get(p));
         map.addMarker(toBlueMarker(p));
         selectedPlaneHistory = p;
         Task<ArrayList<Plane>> gethistoryOpen = new Task<ArrayList<Plane>>() {
@@ -293,7 +295,7 @@ public class GUIController implements Initializable {
 
     public void backgroundupdate() {
 
-//        controller.getOpensky();
+        controller.getOpensky();
 
         updateStatus = true;
 
@@ -333,11 +335,14 @@ public class GUIController implements Initializable {
 
     public void toMarkers() {
 
-        ADSBMarker = new HashSet<>();
-        markersmap = new HashMap<String, Marker>();
+        //ADSBMarker = new HashSet<>();
+        markersmap = new HashMap<Plane, Marker>();
         // MarkerOptions options = new MarkerOptions();
 
-        if (p.heading <= (0 + 12.25) || p.heading >= (360 - 12.25)) {
+        for (Plane p : ListADSB.getItems()) {
+            MarkerOptionsAlt options = new MarkerOptionsAlt();
+            options.rotation((int) p.heading);
+            if (p.heading <= (0 + 12.25) || p.heading >= (360 - 12.25)) {
                 options.icon(Plane0);
             } else if (p.heading <= (335 + 12.25) && p.heading >= (335 - 12.25)) {
                 options.icon(Plane337_5);
@@ -370,55 +375,55 @@ public class GUIController implements Initializable {
             }
             options.position(new LatLong(p.lat, p.lon));
             Marker marker = new Marker(options);
-            ADSBMarker.add(marker);
-            markersmap.put(p.mac, marker);
+            //ADSBMarker.add(marker);
+            markersmap.put(p, marker);
         }
 
     }
 
     public void updateMarkers(){ 
         markers.clear();
-        markers.addAll(ADSBMarker);
-        markers.addAll(UDPMarker);
-        markers.addAll(TCPMarker);
+        // markers.addAll(ADSBMarker);
+        // markers.addAll(UDPMarker);
+        // markers.addAll(TCPMarker);
         map.clearMarkers();
-        map.addMarkers(markers);
+        map.addMarkers(markersmap.values());
     }
 
     public Marker toMarker(Plane p) {
         MarkerOptionsAlt options = new MarkerOptionsAlt();
         options.rotation((int) p.heading);
         if (p.heading <= (0 + 12.25) || p.heading >= (360 - 12.25)) {
-                options.icon(Plane0);
-            } else if (p.heading <= (335 + 12.25) && p.heading >= (335 - 12.25)) {
-                options.icon(Plane337_5);
-            } else if (p.heading <= (310 + 12.25) && p.heading >= (310 - 12.25)) {
-                options.icon(Plane315);
-            } else if (p.heading <= (285 + 12.25) && p.heading >= (285 - 12.25)) {
-                options.icon(Plane292_5);
-            } else if (p.heading <= (260 + 12.25) && p.heading >= (260 - 12.25)) {
-                options.icon(Plane270);
-            } else if (p.heading <= (235 + 12.25) && p.heading >= (235 - 12.25)) {
-                options.icon(Plane247_5);
-            } else if (p.heading <= (210 + 12.25) && p.heading >= (210 - 12.25)) {
-                options.icon(Plane225);
-            } else if (p.heading <= (185 + 12.25) && p.heading >= (185 - 12.25)) {
-                options.icon(Plane202_5);
-            } else if (p.heading <= (160 + 12.25) && p.heading >= (160 - 12.25)) {
-                options.icon(Plane180);
-            } else if (p.heading <= (135 + 12.25) && p.heading >= (135 - 12.25)) {
-                options.icon(Plane157_5);
-            } else if (p.heading <= (110 + 12.25) && p.heading >= (110 - 12.25)) {
-                options.icon(Plane112_5);
-            } else if (p.heading <= (85 + 12.25) && p.heading >= (85 - 12.25)) {
-                options.icon(Plane90);
-            } else if (p.heading <= (60 + 12.25) && p.heading >= (60 - 12.25)) {
-                options.icon(Plane67_5);
-            } else if (p.heading <= (35 + 12.25) && p.heading >= (35 - 12.25)) {
-                options.icon(Plane45);
-            } else if (p.heading <= (10 + 12.25)) {
-                options.icon(Plane22_5);
-            }
+            options.icon(Plane0);
+        } else if (p.heading <= (335 + 12.25) && p.heading >= (335 - 12.25)) {
+            options.icon(Plane337_5);
+        } else if (p.heading <= (310 + 12.25) && p.heading >= (310 - 12.25)) {
+            options.icon(Plane315);
+        } else if (p.heading <= (285 + 12.25) && p.heading >= (285 - 12.25)) {
+            options.icon(Plane292_5);
+        } else if (p.heading <= (260 + 12.25) && p.heading >= (260 - 12.25)) {
+            options.icon(Plane270);
+        } else if (p.heading <= (235 + 12.25) && p.heading >= (235 - 12.25)) {
+            options.icon(Plane247_5);
+        } else if (p.heading <= (210 + 12.25) && p.heading >= (210 - 12.25)) {
+            options.icon(Plane225);
+        } else if (p.heading <= (185 + 12.25) && p.heading >= (185 - 12.25)) {
+            options.icon(Plane202_5);
+        } else if (p.heading <= (160 + 12.25) && p.heading >= (160 - 12.25)) {
+            options.icon(Plane180);
+        } else if (p.heading <= (135 + 12.25) && p.heading >= (135 - 12.25)) {
+            options.icon(Plane157_5);
+        } else if (p.heading <= (110 + 12.25) && p.heading >= (110 - 12.25)) {
+            options.icon(Plane112_5);
+        } else if (p.heading <= (85 + 12.25) && p.heading >= (85 - 12.25)) {
+            options.icon(Plane90);
+        } else if (p.heading <= (60 + 12.25) && p.heading >= (60 - 12.25)) {
+            options.icon(Plane67_5);
+        } else if (p.heading <= (35 + 12.25) && p.heading >= (35 - 12.25)) {
+            options.icon(Plane45);
+        } else if (p.heading <= (10 + 12.25)) {
+            options.icon(Plane22_5);
+        }
         options.position(new LatLong(p.lat, p.lon));
         return new Marker(options);
     }
