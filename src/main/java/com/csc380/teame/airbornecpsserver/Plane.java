@@ -97,7 +97,7 @@ public class Plane {
      * @provides String in CPS becon format
      */
     public String getBeacon(){
-        return "n" + mac + "n" + ip + lat + "n" + lon + "n" + alt;
+        return "n" + mac + "n" + ip +"n"+ lat + "n" + lon + "n" + alt;
     }
 
     public static void main(String[] args){
