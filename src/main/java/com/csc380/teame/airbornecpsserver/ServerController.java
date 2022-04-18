@@ -34,7 +34,7 @@ public class ServerController {
     UDPHandler udpHandler;
     Server server;
 
-    ServerController() throws FileNotFoundException {
+    ServerController(){
         ListUDP = new ArrayList<>();
         ListADSB = new ArrayList<>();
         ListTCP = new ArrayList<>();
@@ -61,7 +61,8 @@ public class ServerController {
 
     public ArrayList<Plane> getUDPList() {
         ArrayList<Plane> temp = new ArrayList<>();
-        for (String s : udpHandler.getBuffer()) {
+        ArrayList<String> udpBuf = udpHandler.getBuffer();
+        for (String s : udpBuf) {
             try {
                 temp.add(new Plane(s));
             } catch (Exception e) {
@@ -75,18 +76,24 @@ public class ServerController {
     }
 
     public ArrayList<Plane> getTCPList() {
-        ArrayList<Plane> temp = new ArrayList<>();
-        TCPHandler tcpHandler = server.returnTCPHandler();
-        for (Plane s : tcpHandler.getBuffer()) {
-            try {
-                temp.add(s);
-            } catch (Exception e) {
-                e.printStackTrace();
+        try{
+            ArrayList<Plane> temp = new ArrayList<>();
+            TCPHandler tcpHandler = server.returnTCPHandler();
+            for (Plane s : tcpHandler.getBuffer()) {
+                try {
+                    temp.add(s);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                CPSFilter cpsFilter = new CPSFilter(ListTCP);
+                ListTCP = cpsFilter.checkForDuplicates(temp);
             }
-            CPSFilter cpsFilter = new CPSFilter(ListTCP);
-            ListTCP = cpsFilter.checkForDuplicates(temp);
+            return ListTCP;
+        }catch (Exception e) {
+            e.printStackTrace();
         }
-        return ListTCP;
+        return new ArrayList<Plane>();
+
     }
 
     public ArrayList<Plane> getADSBList() {
@@ -121,7 +128,7 @@ public class ServerController {
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
                 LocalDateTime now = LocalDateTime.now();
                 System.out.print(dtf.format(now));
-                System.out.println(" ADSB update took: " + (t2 - t1) + " ms");
+                System.out.println(" ADSB update took: " + (t2 - t1) + " ms" + bbox.getMinLatitude() + " " + bbox.getMaxLatitude()+ " " +bbox.getMinLongitude()+ " " +bbox.getMaxLongitude());
                 if (list.size() > 0) {
                     this.ListADSB = list;
                 }
@@ -198,7 +205,7 @@ public class ServerController {
     public static void main(String[] args) {
         try {
             ServerController controller = new ServerController();
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
