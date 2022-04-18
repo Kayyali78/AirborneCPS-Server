@@ -285,7 +285,7 @@ public class GUIController implements Initializable {
 
     public void backgroundupdate() {
 
-        controller.getOpensky();
+//        controller.getOpensky();
 
         updateStatus = true;
 
@@ -332,21 +332,35 @@ public class GUIController implements Initializable {
         for (Plane p : ListADSB.getItems()) {
             MarkerOptionsAlt options = new MarkerOptionsAlt();
             options.rotation((int) p.heading);
-            if (p.heading <= (0 + 22.5) || p.heading >= (360 - 22.5)) {
+            if (p.heading <= (0 + 12.25) || p.heading >= (360 - 12.25)) {
                 options.icon(Plane0);
-            } else if (p.heading <= (315 + 22.5) && p.heading >= (315 - 22.5)) {
+            } else if (p.heading <= (335 + 12.25) && p.heading >= (335 - 12.25)) {
                 options.icon(Plane315);
-            } else if (p.heading <= (270 + 22.5) && p.heading >= (270 - 22.5)) {
+            } else if (p.heading <= (310 + 12.25) && p.heading >= (310 - 12.25)) {
                 options.icon(Plane270);
-            } else if (p.heading <= (215 + 22.5) && p.heading >= (215 - 22.5)) {
+            } else if (p.heading <= (285 + 12.25) && p.heading >= (285 - 12.25)) {
                 options.icon(Plane215);
-            } else if (p.heading <= (180 + 22.5) && p.heading >= (180 - 22.5)) {
+            } else if (p.heading <= (260 + 12.25) && p.heading >= (260 - 12.25)) {
                 options.icon(Plane180);
-            } else if (p.heading <= (135 + 22.5) && p.heading >= (135 - 22.5)) {
+            } else if (p.heading <= (235 + 12.25) && p.heading >= (235 - 12.25)) {
                 options.icon(Plane135);
-            } else if (p.heading <= (90 + 22.5) && p.heading >= (90 - 22.5)) {
+            } else if (p.heading <= (210 + 12.25) && p.heading >= (210 - 12.25)) {
                 options.icon(Plane90);
-            } else if (p.heading <= (45 + 22.5) && p.heading >= (45 - 22.5)) {
+            } else if (p.heading <= (185 + 12.25) && p.heading >= (185 - 12.25)) {
+                options.icon(Plane45);
+            } else if (p.heading <= (160 + 12.25) && p.heading >= (160 - 12.25)) {
+                options.icon(Plane315);
+            } else if (p.heading <= (135 + 12.25) && p.heading >= (135 - 12.25)) {
+                options.icon(Plane270);
+            } else if (p.heading <= (110 + 12.25) && p.heading >= (110 - 12.25)) {
+                options.icon(Plane215);
+            } else if (p.heading <= (85 + 12.25) && p.heading >= (85 - 12.25)) {
+                options.icon(Plane180);
+            } else if (p.heading <= (60 + 12.25) && p.heading >= (60 - 12.25)) {
+                options.icon(Plane135);
+            } else if (p.heading <= (35 + 12.25) && p.heading >= (35 - 12.25)) {
+                options.icon(Plane90);
+            } else if (p.heading <= (10 + 12.25)) {
                 options.icon(Plane45);
             }
             options.position(new LatLong(p.lat, p.lon));
