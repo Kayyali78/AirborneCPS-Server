@@ -13,8 +13,8 @@ public class TCPHandlerTest extends TestCase {
 
     public void testBlankTCP() throws InterruptedException, FileNotFoundException {
 
-        TCPHandler tcpHandler = new TCPHandler();
-        tcpHandler.serve();
+        //TCPHandler tcpHandler = new TCPHandler();
+        //tcpHandler.serve();
     }
 
     public void testGetTCPBeacon() {

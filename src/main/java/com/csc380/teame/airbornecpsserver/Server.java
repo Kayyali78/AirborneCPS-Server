@@ -13,6 +13,7 @@ public class Server {
     List<String> readerBuf;
     List<Plane> writerBuf;
     Object rlock = new Object(), wlock = new Object();
+    TCPHandler clientSock;
 
     public Server(){
         this(1901, TCPHandler.Mode.normal);
@@ -28,56 +29,51 @@ public class Server {
     }
 
     public void serve() throws InterruptedException {
-        Socket socket;
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Server is listening on port " + port);
-            do {
-                socket = serverSocket.accept();
-                System.out.println("New client connected: " + socket.getInetAddress().getHostAddress());
+        ServerSocket server = null;
 
-                //reader threat for this client
-                Socket finalSocket = socket;
-                new Thread(() -> {
-                    try {
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(finalSocket.getInputStream()));
-                        while (true) {
-                            synchronized (rlock) {
-                                readerBuf.add(reader.readLine());
-                            }
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }).start();
+        try {
 
-                //writer thread for this client
-                Socket finalSocket1 = socket;
-                new Thread(() -> {
-                    try {
-                        PrintWriter writer = new PrintWriter(finalSocket1.getOutputStream(), true);
-                        while (true) {
-                            synchronized (wlock) {
-                                while (writerBuf.size() > 0) {
-                                    for (Plane p : writerBuf) {
-                                        writer.write(p.getBeacon());
-                                    }
-                                }
-                            }
-                            sleep(10);
-                        }
-                    } catch (IOException | InterruptedException e) {
-                        System.out.println("Exception while writing to client: " + e.getMessage());
-                        e.printStackTrace();
-                    }
-                }).start();
-            } while (true);
-        } catch (IOException e) {
-            System.out.println("Server exception: " + e.getMessage());
+            // server is listening on port 1901
+            server = new ServerSocket(1901);
+            server.setReuseAddress(true);
+
+            // running infinite loop for getting
+            // client request
+            while (true) {
+
+                // socket object to receive incoming client
+                // requests
+                Socket client = server.accept();
+
+                // Displaying that new client is connected
+                // to server
+                System.out.println("New client connected"
+                        + client.getInetAddress()
+                        .getHostAddress());
+
+                // create a new thread object
+                clientSock = new TCPHandler(client);
+
+                // This thread will handle the client
+                // separately
+                new Thread((Runnable) clientSock).start();
+            }
+        }
+        catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            sleep(500);
+        }
+        finally {
+            if (server != null) {
+                try {
+                    server.close();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
+
 
     public void serve(String file){
         try (ServerSocket serverSocket = new ServerSocket(port)) {
@@ -121,6 +117,18 @@ public class Server {
             }
         } catch (IOException e) {
             System.out.println("Server exception: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public TCPHandler returnTCPHandler(){
+        return clientSock;
+    }
+    public static void main(String[] args){
+        Server server = new Server();
+        try {
+            server.serve();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }

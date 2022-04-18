@@ -1,5 +1,6 @@
 package com.csc380.teame.airbornecpsserver;
 
+import java.io.FileNotFoundException;
 import java.lang.reflect.Array;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
@@ -15,9 +16,11 @@ import org.opensky.api.OpenSkyApi;
 import org.opensky.api.OpenSkyApi.BoundingBox;
 import org.opensky.model.OpenSkyStates;
 import org.opensky.model.StateVector;
+
 import java.time.format.DateTimeFormatter;
 import java.time.Instant;
 import java.time.LocalDateTime;
+
 public class ServerController {
     DatagramSocket socket;
     ArrayList<Plane> ListTCP;
@@ -29,37 +32,39 @@ public class ServerController {
     BoundingBox bbox = new BoundingBox(30.8389, 50.8229, -100.9962, -40.5226);
     public static final Object openskyLock = new Object();
     UDPHandler udpHandler;
-    ServerController(){
+    Server server;
+
+    ServerController() throws FileNotFoundException {
         ListUDP = new ArrayList<>();
         ListADSB = new ArrayList<>();
         ListTCP = new ArrayList<>();
         ListUDP = Plane.getExamplePlanes();
         udpHandler = new UDPHandler();
-        try{
-            new Thread(){
+        server = new Server();
+        try {
+            new Thread() {
                 @Override
                 public void run() {
-                    try{
+                    try {
                         udpHandler.serve();
-                    }catch(Exception e){
+                        server.serve();
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
 
                 }
             }.start();
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
-    
-    public ArrayList<Plane> getUDPList(){
+
+    public ArrayList<Plane> getUDPList() {
         ArrayList<Plane> temp = new ArrayList<>();
-        for(String s :udpHandler.getBuffer()){
-            try{
+        for (String s : udpHandler.getBuffer()) {
+            try {
                 temp.add(new Plane(s));
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -68,92 +73,105 @@ public class ServerController {
         return ListUDP;
         //return ListUDP;
     }
-    
+
     public ArrayList<Plane> getTCPList() {
-        return ListUDP;
+        ArrayList<Plane> temp = new ArrayList<>();
+        TCPHandler tcpHandler = server.returnTCPHandler();
+        for (Plane s : tcpHandler.getBuffer()) {
+            try {
+                temp.add(s);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            CPSFilter cpsFilter = new CPSFilter(ListTCP);
+            ListTCP = cpsFilter.checkForDuplicates(temp);
+        }
+        return ListTCP;
     }
-    
+
     public ArrayList<Plane> getADSBList() {
         return ListADSB;
     }
-    public void getOpensky(){
+
+    public void getOpensky() {
         getOpensky(bbox);
     }
+
     public void getOpensky(BoundingBox bbox) {
         ArrayList<Plane> list = new ArrayList<>();
         long t1 = System.currentTimeMillis();
-        synchronized(openskyLock){
-            try{
+        synchronized (openskyLock) {
+            try {
                 int count = 0;
                 OpenSkyStates os = api.getStates(0, null, bbox);
-                for(StateVector sv : os.getStates()){
-                    if(count <= 100){
-                        if(sv.getHeading() != null && sv.getHeading() != 0){
+                for (StateVector sv : os.getStates()) {
+                    if (count <= 100) {
+                        if (sv.getHeading() != null && sv.getHeading() != 0) {
                             list.add(new Plane(sv));
-                            count ++;
+                            count++;
                         }
-                    }else{
+                    } else {
                         break;
                     }
                 }
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
-            }finally {
+            } finally {
                 long t2 = System.currentTimeMillis();
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
                 LocalDateTime now = LocalDateTime.now();
                 System.out.print(dtf.format(now));
-                System.out.println(" ADSB update took: " + (t2-t1) + " ms" );
-                if(list.size()>0){
+                System.out.println(" ADSB update took: " + (t2 - t1) + " ms");
+                if (list.size() > 0) {
                     this.ListADSB = list;
                 }
             }
         }
         //return ListUDP;
     }
-    public LatLong[] getHistoryOpensky(Plane p){
-        if(p.isADSB == false){
+
+    public LatLong[] getHistoryOpensky(Plane p) {
+        if (p.isADSB == false) {
             throw new IllegalStateException("Not an Opensky plane");
-        }else{
+        } else {
             //get some LatLong[]
             long t = Instant.now().getEpochSecond();
             ArrayList<LatLong> l = new ArrayList<LatLong>();
             String[] s = {p.mac};
-            for(int i = (int)t - 60*30; i <(int) t;i = (int)t + 60 ){
-                try{
-                    OpenSkyStates os = api.getStates((int)t, s, bbox);
+            for (int i = (int) t - 60 * 30; i < (int) t; i = (int) t + 60) {
+                try {
+                    OpenSkyStates os = api.getStates((int) t, s, bbox);
                     for (StateVector sv : os.getStates()) {
                         if (sv.getIcao24() == p.mac) {
                             l.add(new LatLong(sv.getLatitude(), sv.getLongitude()));
                         }
                     }
-                }catch(Exception ex){
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-                
-                
+
+
             }
-            return (LatLong[])l.toArray();
+            return (LatLong[]) l.toArray();
         }
     }
 
-    public ArrayList<Plane>getSomePlane(Plane p){
-        ArrayList<Plane> arr= new ArrayList<>();
-        if(p.isADSB == false){
+    public ArrayList<Plane> getSomePlane(Plane p) {
+        ArrayList<Plane> arr = new ArrayList<>();
+        if (p.isADSB == false) {
             throw new IllegalStateException("Not an Opensky plane");
         }
         int t = (int) (Instant.now().getEpochSecond());
         String[] s = {p.mac};
-        for(int i = (int)t - 60*242; i <= (int) t;i+= 60*30 ){
-            synchronized(openskyLock){
-                try{
+        for (int i = (int) t - 60 * 242; i <= (int) t; i += 60 * 30) {
+            synchronized (openskyLock) {
+                try {
                     Thread.sleep(5000);
                     t = (int) (Instant.now().getEpochSecond());
-                    OpenSkyStates oss = api.getStates((i-i%5), s);
-                    if(oss == null){
+                    OpenSkyStates oss = api.getStates((i - i % 5), s);
+                    if (oss == null) {
                         System.err.println("Request Limit reached:4900ms");
-                    }
-                    else if(oss.getStates() == null){
+                    } else if (oss.getStates() == null) {
                         System.err.println("Get nothing");
                         continue;
                     }
@@ -162,7 +180,7 @@ public class ServerController {
                             arr.add(new Plane(sv));
                         }
                     }
-                }catch(Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -173,12 +191,17 @@ public class ServerController {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         System.out.print(dtf.format(now));
-        System.out.println(Thread.currentThread().getName() +" ADSB gethistory took: " + (t2-t) + " ms" );
+        System.out.println(Thread.currentThread().getName() + " ADSB gethistory took: " + (t2 - t) + " ms");
         return arr;
     }
 
-    public static void main(String[] args){
-        ServerController controller = new ServerController();
-        
+    public static void main(String[] args) {
+        try {
+            ServerController controller = new ServerController();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 }
+
