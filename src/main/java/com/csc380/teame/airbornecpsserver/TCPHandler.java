@@ -28,8 +28,9 @@ public class TCPHandler implements Runnable{
         readerBuf = new ArrayList<>();
         writerBuf = new ArrayList<>();
         ArrayList<Plane> planes = new ArrayList<>();
-
-        FileInputStream fileInput = new FileInputStream("northboundloop.txt");
+        String path = UDPHandler.class.getResource("northboundloop.txt").toString();
+        path = path.substring(6, path.length());
+        FileInputStream fileInput = new FileInputStream(path);
         Scanner s1 = new Scanner(fileInput);
 
         while (s1.hasNextLine()){
@@ -47,7 +48,7 @@ public class TCPHandler implements Runnable{
         s1.close();
         write(planes);
     }
-
+    @Override
     public void run() {
         PrintWriter out = null;
         BufferedReader in = null;
@@ -141,6 +142,10 @@ public class TCPHandler implements Runnable{
             writerBuf.addAll(arr);
         }
         //System.out.println("Size of writerBuf is: "+writerBuf.size());
+    }
+
+    public static void main(String[] args){
+        
     }
 
 }

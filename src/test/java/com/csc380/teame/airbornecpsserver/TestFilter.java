@@ -35,7 +35,7 @@ public class TestFilter {
                     TestPlanes.add(new Plane(in.nextLine()));
                 }
                 ArrayList<Plane> newList = udpf.checkDups(TestPlanes);
-                assertTrue(TestPlanes.size() == 1);
+                assertTrue(newList.size() == 1);
             } catch (FileNotFoundException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
