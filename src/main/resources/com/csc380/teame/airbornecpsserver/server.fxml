@@ -206,6 +206,8 @@
                      </children>
                   </GridPane>
                   <Button fx:id="refreshmap" layoutX="20.0" layoutY="515.0" mnemonicParsing="false" onAction="#r_map" text="Draw" />
+                  <Button fx:id="refreshmap1" layoutX="77.0" layoutY="515.0" mnemonicParsing="false" onAction="#r_map" text="TCP Inject" />
+                  <Button fx:id="udpInjection" layoutX="77.0" layoutY="485.0" mnemonicParsing="false" onAction="#r_map" text="UDP Inject" />
           </children>
         </AnchorPane>
       </items>
