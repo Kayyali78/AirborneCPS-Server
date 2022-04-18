@@ -1,8 +1,6 @@
 package com.csc380.teame.airbornecpsserver;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -31,8 +29,8 @@ public class EchoClient{
 
         try (Socket socket = new Socket(ip, port)) {
             System.out.println("Connected to " + socket.getInetAddress().getHostName() + " at " + socket.getInetAddress().getHostAddress() + " on port " + socket.getPort());
-            Scanner reader = new Scanner(socket.getInputStream());
             PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             //writer thread
             new Thread(() -> {
@@ -53,9 +51,16 @@ public class EchoClient{
             }).start();
 
             //read using this thread
-            while (reader.hasNext()) {
-                System.out.println(reader.nextLine());
-            }
+            new Thread(() -> {
+                try {
+                    while (true) {
+
+                        System.out.println(reader.readLine());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }).start();
             System.out.println("Server closed the connection.");
         } catch (IOException e) {
             System.out.println("Client exception: " + e.getMessage());
