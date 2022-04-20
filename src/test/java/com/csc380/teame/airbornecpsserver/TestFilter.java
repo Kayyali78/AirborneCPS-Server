@@ -45,6 +45,7 @@ public class TestFilter {
         } catch (URISyntaxException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
+            return;
         }
         // System.out.println(loader.getResource("northboundloop.txt"));
 

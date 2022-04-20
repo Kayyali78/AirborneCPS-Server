@@ -11,6 +11,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.ResourceBundle;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
@@ -28,6 +32,7 @@ import com.dlsc.gmapsfx.javascript.object.Marker;
 import com.dlsc.gmapsfx.javascript.object.MarkerOptions;
 import com.dlsc.gmapsfx.shapes.Polyline;
 import com.dlsc.gmapsfx.shapes.PolylineOptions;
+
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -55,6 +60,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class GUIController implements Initializable {
+    private static final Logger logger = LogManager.getLogger(GUIController.class);
 
     @FXML
     private Label ICAOLabel;
@@ -72,7 +78,16 @@ public class GUIController implements Initializable {
     private Label altitudeLabel;
 
     @FXML
+    private TextField tcpServerPort;
+
+    @FXML
+    private TextField tcpTargetPort;
+
+    @FXML
     private TextArea termial;
+
+    @FXML
+    private TextField udpPort;
 
     @FXML
     private Label callLabel;
@@ -181,7 +196,7 @@ public class GUIController implements Initializable {
                     try {
                         UDPHandler udpInjector = new UDPHandler(12345, UDPHandler.mode.slower, "127.0.0.2");
                         udpInjector.fillList();
-                        udpInjector.serve();
+                        udpInjector.serveWriterThread();
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
@@ -192,6 +207,11 @@ public class GUIController implements Initializable {
         }
 
     }
+
+    @FXML
+    public void resetHandler(ActionEvent event) {
+        this.controller.udpHandler.resetSocket(Integer.parseInt(udpPort.getText()));
+    }   
 
     @FXML
     public void r_map(ActionEvent event) {
@@ -495,11 +515,15 @@ public class GUIController implements Initializable {
                         synchronized (ADSBlock) {
                             backgroundupdate();
                         }
+                        relayTransmission();
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     } finally {
                         try {
-                            Thread.sleep(30000);
+                            logger.log(Level.INFO, "purged TCP {}", String.valueOf(controller.getTCPwoFilter().size()));
+                            logger.log(Level.INFO, "purged UDP {}", String.valueOf(controller.getUDPwoFilter().size()));
+                            logger.log(Level.INFO, "purged ADSB {}", String.valueOf(controller.getADSBList().size()));
+                            Thread.sleep(15000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -602,7 +626,7 @@ public class GUIController implements Initializable {
                             @Override
                             public void handle(ActionEvent event) {
                                 ArrayList<Plane> tcptemp = new ArrayList<>();
-                                System.out.println("Getting udplist from controller");
+                                System.out.println("Getting tcplist from controller");
                                 tcptemp = controller.getTCPList();
                                 System.out.println("TCPlist size " + tcptemp.size());
                                 ObservableList<Plane> observableArrayListTCP = FXCollections
@@ -635,7 +659,7 @@ public class GUIController implements Initializable {
                             @Override
                             public void handle(ActionEvent event) {
                                 ArrayList<Plane> adsbtemp = new ArrayList<>();
-                                System.out.println("Getting udplist from controller");
+                                System.out.println("Getting adsblist from controller");
                                 adsbtemp = controller.getADSBList();
                                 System.out.println("ADSBlist size " + adsbtemp.size());
                                 ObservableList<Plane> observableArrayListADSB = FXCollections

@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 
 import java.io.IOException;
 
-public class ServerTest extends TestCase {
+public class ServerTest{
     String test1 = "java -jar tcpbeacons.jar -server";
     String test2 = "java -jar tcpbeacons.jar -server 1901 northbound.txt slow";
     String test3 = "java -jar tcpbeacons.jar -server 1901 southbound.txt slow slow";

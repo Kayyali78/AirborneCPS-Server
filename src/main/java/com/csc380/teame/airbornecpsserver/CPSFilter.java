@@ -50,24 +50,24 @@ public class CPSFilter {
     }
 
     //check current list for duplicate entries
-    public ArrayList<Plane> checkForDuplicates(ArrayList<Plane> currentList) {
-        ArrayList<Plane> newList = new ArrayList<>();
-        for (int i = 0; i < currentList.size(); i++) {
-            Plane currentPlane = currentList.get(i);
-            String currentMacAddr = currentPlane.mac;
-            if (newList.size() == 0) {
-                newList.add(currentPlane);
-            }
-            for (int j = 0; j < newList.size(); j++) {
-                Plane newPlane = newList.get(j);
-                String newPlaneMac = newPlane.mac;
-                if (!currentMacAddr.equalsIgnoreCase(newPlaneMac)) {
-                    newList.add(currentPlane);
-                }
-            }
-        }
-        return newList;
-    }
+//    public ArrayList<Plane> checkForDuplicates(ArrayList<Plane> currentList) {
+//        ArrayList<Plane> newList = new ArrayList<>();
+//        for (int i = 0; i < currentList.size(); i++) {
+//            Plane currentPlane = currentList.get(i);
+//            String currentMacAddr = currentPlane.mac;
+//            if (newList.size() == 0) {
+//                newList.add(currentPlane);
+//            }
+//            for (int j = 0; j < newList.size(); j++) {
+//                Plane newPlane = newList.get(j);
+//                String newPlaneMac = newPlane.mac;
+//                if (!currentMacAddr.equalsIgnoreCase(newPlaneMac)) {
+//                    newList.add(currentPlane);
+//                }
+//            }
+//        }
+//        return newList;
+//    }
 
     //only return planes within a certain distance from current player
     public ArrayList<Plane> getLocalPlaneList(ArrayList<Plane> currentList) {

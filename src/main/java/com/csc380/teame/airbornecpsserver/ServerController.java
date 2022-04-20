@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.lang.reflect.Array;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
+import java.util.regex.*;
 
 import com.dlsc.gmapsfx.javascript.object.LatLong;
 import com.dlsc.gmapsfx.javascript.object.MVCArray;
@@ -33,12 +34,15 @@ public class ServerController {
     public static final Object openskyLock = new Object();
     UDPHandler udpHandler;
     Server server;
+    public String zeroTo255 = "(\\d{1,2}|(0|1)\\" + "d{2}|2[0-4]\\d|25[0-5])";
+    public String IPregex = zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255;
+    Pattern IPPattern = Pattern.compile(IPregex);
 
     ServerController(){
         ListUDP = new ArrayList<>();
         ListADSB = new ArrayList<>();
         ListTCP = new ArrayList<>();
-        ListUDP = Plane.getExamplePlanes();
+        ListUDP = new ArrayList<>();
         udpHandler = new UDPHandler();
         server = new Server();
         try {
@@ -46,6 +50,8 @@ public class ServerController {
                 @Override
                 public void run() {
                     try {
+                        udpHandler.createSocket(21221,"0.0.0.0");
+                        udpHandler.renewThread();
                         udpHandler.serve();
                         server.serve();
                     } catch (Exception e) {
@@ -66,13 +72,17 @@ public class ServerController {
         ArrayList<String> udpBuf = udpHandler.getBuffer();
         for (String s : udpBuf) {
             try {
-                temp.add(new Plane(s));
+                //double check if ip field is valid
+                String ip = s.split("n")[2];
+                //Matcher m = IPPattern.matcher(ip);
+                if(IPPattern.matcher(ip).matches())
+                    temp.add(new Plane(s));
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         CPSFilter cpsFilter = new CPSFilter(ListUDP);
-        ListUDP = cpsFilter.checkForDuplicates(temp);
+        ListUDP = cpsFilter.checkDups(temp);
         return ListUDP;
         //return ListUDP;
     }
@@ -96,16 +106,17 @@ public class ServerController {
     public ArrayList<Plane> getTCPList() {
         try{
             ArrayList<Plane> temp = new ArrayList<>();
-            TCPHandler tcpHandler = server.returnTCPHandler();
-            for (Plane s : tcpHandler.getBuffer()) {
+            //TCPHandler tcpHandler = server.returnTCPHandler();
+            ArrayList<String> tcptemp = TCPHandler.getReaderBuffer();
+            for (String s : tcptemp) {
                 try {
-                    temp.add(s);
+                    temp.add(new Plane(s));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                CPSFilter cpsFilter = new CPSFilter(ListTCP);
-                ListTCP = cpsFilter.checkForDuplicates(temp);
             }
+            CPSFilter cpsFilter = new CPSFilter(ListTCP);
+            ListTCP = cpsFilter.checkDups(temp);
             return ListTCP;
         }catch (Exception e) {
             e.printStackTrace();

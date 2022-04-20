@@ -12,14 +12,21 @@ import java.util.Scanner;
 public class UDPHandler {
     public static final Object recvlock = new Object();
     public static final Object sendlock = new Object();
-    protected enum mode {normal, slower, slowest}
+
+    protected enum mode {
+        normal, slower, slowest
+    }
+
     private int port;
     public int delay = 10;
     private DatagramSocket inSocket;
     private DatagramSocket outSocket;
-    //inSocket buf.
+    // inSocket buf.
     private DatagramPacket datagramPacket;
     private final int MAX_RECEIVE_BUFFER_SIZE = 4096;
+
+    Thread readerThread = null;
+    Thread writerThread = null;
 
     ArrayList<String> receivedBuffer = new ArrayList<String>();
     ArrayList<Plane> senderBuffer = new ArrayList<Plane>();
@@ -30,29 +37,29 @@ public class UDPHandler {
 
     public void fillList() throws FileNotFoundException {
         System.out.println("Working Directory = " + System.getProperty("user.dir"));
-        
-        String path = UDPHandler.class.getResource("northboundloop.txt").toString();
+
+        String path = UDPHandler.class.getResource("southboundloop.txt").toString();
         path = path.substring(6, path.length());
         FileInputStream fileInput = new FileInputStream(path);
         Scanner s1 = new Scanner(fileInput);
         ArrayList<Plane> planes = new ArrayList<>();
-        while (s1.hasNextLine()){
+        while (s1.hasNextLine()) {
             String beacon = s1.nextLine();
             try {
                 Plane p = new Plane(beacon);
                 planes.add(p);
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        synchronized (senderBuffer){
+        synchronized (senderBuffer) {
             senderBuffer = new ArrayList<>(planes);
         }
     }
 
-    public ArrayList<String> getBuffer(){
+    public synchronized ArrayList<String> getBuffer() {
         ArrayList<String> buffer = new ArrayList<String>();
-        synchronized(receivedBuffer) {
+        synchronized (receivedBuffer) {
             buffer = new ArrayList<String>(receivedBuffer);
             System.out.println("UDPHandler: rbuffer has " + receivedBuffer.size());
             receivedBuffer.clear();
@@ -60,15 +67,17 @@ public class UDPHandler {
         }
         return buffer;
     }
-    public void updateSenderBuffer(ArrayList<Plane> in){
-        try{
-            synchronized(senderBuffer){
+
+    public synchronized void updateSenderBuffer(ArrayList<Plane> in) {
+        try {
+            synchronized (senderBuffer) {
                 senderBuffer = new ArrayList<>(in);
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     public UDPHandler(int port, mode mode) {
         this.port = port;
         switch (mode) {
@@ -82,21 +91,22 @@ public class UDPHandler {
                 this.delay = 500;
                 break;
         }
-        try{
-            inSocket = new DatagramSocket(null);
-            inSocket.setReuseAddress(true);
-            inSocket.setBroadcast(true);
-            inSocket.bind(new InetSocketAddress("0.0.0.0",port));
-            outSocket = new DatagramSocket();
-            outSocket.setReuseAddress(true);
-            outSocket.setBroadcast(true);
-
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
+        createSocket(port, "0.0.0.0");
     }
 
-    public UDPHandler(int port, mode mode,String host) {
+    public void close() {
+        //this.readerThread.interrupt();
+        this.readerThread.stop();
+        this.writerThread.stop();
+        this.inSocket.close();
+        this.outSocket.close();
+    }
+
+    public void closeReaderThread() {
+        this.readerThread.interrupt();
+    }
+
+    public UDPHandler(int port, mode mode, String host) {
         this.port = port;
         switch (mode) {
             case normal:
@@ -109,11 +119,14 @@ public class UDPHandler {
                 this.delay = 500;
                 break;
         }
-        try{
+        createSocket(port,host);
+    }
+    public void createSocket(int port, String host){
+        try {
             inSocket = new DatagramSocket(null);
             inSocket.setReuseAddress(true);
             inSocket.setBroadcast(true);
-            inSocket.bind(new InetSocketAddress(host,port));
+            inSocket.bind(new InetSocketAddress(host, port));
             outSocket = new DatagramSocket();
             outSocket.setReuseAddress(true);
             outSocket.setBroadcast(true);
@@ -123,9 +136,15 @@ public class UDPHandler {
             e.printStackTrace();
         }
     }
-    public void serve() throws SocketException {
-        new Thread(){
-            //Receiver.
+
+    public void resetSocket(int port){
+        this.close();
+        this.createSocket(port,"0.0.0.0");
+    }
+
+    public void renewThread(){
+        readerThread = new Thread() {
+            // Receiver.
             @Override
             public void run() {
                 try {
@@ -133,62 +152,81 @@ public class UDPHandler {
                         byte[] buf = new byte[MAX_RECEIVE_BUFFER_SIZE];
                         datagramPacket = new DatagramPacket(buf, buf.length);
                         inSocket.receive(datagramPacket);
-                        //System.out.println("New client connected: " + datagramPacket.getAddress().getHostAddress());
+                        // System.out.println("New client connected: " +
+                        // datagramPacket.getAddress().getHostAddress());
                         ByteBuffer bb = ByteBuffer.wrap(buf);
                         String data = StandardCharsets.UTF_8.decode(bb).toString();
-                        synchronized(receivedBuffer){
+                        synchronized (receivedBuffer) {
                             receivedBuffer.add(data);
                         }
-                        //System.out.println(data);
+                        // System.out.println(data);
                         // new Thread(() -> {
-                        //     try {
-                        //         byte[] bb = new byte[MAX_RECEIVE_BUFFER_SIZE];
-                        //         DatagramPacket clientPack = new DatagramPacket(bb, bb.length);
-                        //         inSocket.receive(clientPack);
-                        //     } catch (IOException e) {
-                        //         System.out.println("Error receiving client packet.");
-                        //         e.printStackTrace();
-                        //     }
+                        // try {
+                        // byte[] bb = new byte[MAX_RECEIVE_BUFFER_SIZE];
+                        // DatagramPacket clientPack = new DatagramPacket(bb, bb.length);
+                        // inSocket.receive(clientPack);
+                        // } catch (IOException e) {
+                        // System.out.println("Error receiving client packet.");
+                        // e.printStackTrace();
+                        // }
                         // });
                     }
 
-                } catch (IOException e) {
+                } catch (Exception e) {
                     System.out.println("Error initializing server communication.");
                     e.printStackTrace();
+                } finally {
+                    close();
                 }
             }
-        }.start();
-        new Thread(){
-            //sender
+        };
+        writerThread = new Thread() {
+            // sender
             @Override
             public void run() {
-                while(true){
-                    try{
-                        synchronized(senderBuffer){
-                            for(Plane p : senderBuffer){
-                                byte[] buf = p.getBeacon().getBytes(StandardCharsets.UTF_8);
-                                DatagramPacket sendpkt = new DatagramPacket(buf,buf.length, InetAddress.getByName("255.255.255.255"),21221);
-                                outSocket.send(sendpkt);
-                                Thread.sleep(delay);
+                try {
+                    while (true) {
+                        try {
+                            synchronized (senderBuffer) {
+                                for (Plane p : senderBuffer) {
+                                    byte[] buf = p.getBeacon().getBytes(StandardCharsets.UTF_8);
+                                    DatagramPacket sendpkt = new DatagramPacket(buf, buf.length,
+                                            InetAddress.getByName("255.255.255.255"), 21221);
+                                    outSocket.send(sendpkt);
+                                    Thread.sleep(delay);
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            try {
+                                Thread.sleep(500);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
                             }
                         }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } finally{
-                        try {
-                            Thread.sleep(500);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.err.println("ThreadInterrupted");
+                } finally {
+                    close();
                 }
             }
-        }.start();
+        };
     }
-    public static void main(String[] args){
+
+    public void serve(){
+        readerThread.start();
+        writerThread.start();
+    }
+
+    public void serveWriterThread(){
+        writerThread.start();
+    }
+
+    public static void main(String[] args) {
         UDPHandler uh = new UDPHandler();
-        
         try {
             uh.fillList();
             uh.serve();

@@ -8,8 +8,9 @@ module com.csc380.teame.airbornecpsserver {
     requires javafx.web;
     requires org.controlsfx.controls;
     requires org.kordamp.bootstrapfx.core;
-
+    requires java.logging;
     requires opensky.api;
+    requires org.apache.logging.log4j;
 
     opens com.csc380.teame.airbornecpsserver to javafx.fxml;
     exports com.csc380.teame.airbornecpsserver;

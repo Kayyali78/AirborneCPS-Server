@@ -15,15 +15,26 @@ public class TCPHandler implements Runnable{
     private final static String helptext = "Syntax: java -jar tcpbeacons.jar (-server PORT? FILENAME | -client IP PORT FILENAME) slow? slow?";
     private Socket clientSocket = new Socket();
 
-    ArrayList<String> readerBuf;
-    static ArrayList<Plane> writerBuf;
+    static ArrayList<String> readerBuf = new ArrayList<String>();
+    static ArrayList<Plane> writerBuf = new ArrayList<Plane>();
     // Object rlock = new Object(), wlock = new Object();
 
     public TCPHandler(Socket socket) throws FileNotFoundException {
         this.clientSocket = socket;
-        fillList();
+        // fillList();
     }
 
+    private static synchronized void readtoBuffer(String str){
+        synchronized (readerBuf){
+            readerBuf.add(str);
+        }
+    }
+
+    public static synchronized ArrayList<String> getReaderBuffer(){
+        synchronized (readerBuf){
+            return readerBuf;
+        }
+    }
     public static void updateSenderBuffer(ArrayList<Plane> in) {
         try {
             synchronized (writerBuf) {
@@ -34,10 +45,10 @@ public class TCPHandler implements Runnable{
         }
     }
 
-    public List<Plane> getBuffer() {
-        updateSenderBuffer((ArrayList<Plane>) writerBuf);
-        return writerBuf;
-    }
+    // public List<Plane> getBuffer() {
+    //     updateSenderBuffer((ArrayList<Plane>) writerBuf);
+    //     return writerBuf;
+    // }
 
     public void write(List<Plane> arr) {
         synchronized (writerBuf) {
@@ -90,18 +101,38 @@ public class TCPHandler implements Runnable{
         }
 
         String line = "";
-
+        long t1 = System.currentTimeMillis();
+        int counter=0;
         while (true) {
+            //timer base update
+            
             try {
-                if ((line = in.readLine()) == null) break;
-            } catch (IOException ex) {
+                if(System.currentTimeMillis() - t1 >= 1000){
+                    synchronized(writerBuf){
+                        for(Plane p:writerBuf){
+                            //out.println(p.getBeacon());
+                            System.out.println("Write to the client: " + p.getBeacon() + "\n");
+                            out.println(p.getBeacon());
+                            Thread.sleep(50);
+                        }
+                    }
+                    Thread.sleep(10);
+                    counter = 0;
+                    t1 = System.currentTimeMillis();
+                }
+                else if (counter++ < 100 && (line = in.readLine()) != null ) {
+                    //if socketbreaks, exception happen first before break.
+                    System.out.println("Sent from the client: " + line + "\n");
+                    readtoBuffer(line);
+                }
+            } catch (Exception ex) {
                 ex.printStackTrace();
+                break;
             }
-
-
-            //writing the received message from client
-            System.out.println("Sent from the client: "+line+"\n");
-            out.println(line);
+            
+            
+            //out.println(line);
+            
         }
 
     }
