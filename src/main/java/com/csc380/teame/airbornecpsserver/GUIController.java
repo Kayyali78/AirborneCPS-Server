@@ -11,10 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.ResourceBundle;
-
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
@@ -32,7 +28,6 @@ import com.dlsc.gmapsfx.javascript.object.Marker;
 import com.dlsc.gmapsfx.javascript.object.MarkerOptions;
 import com.dlsc.gmapsfx.shapes.Polyline;
 import com.dlsc.gmapsfx.shapes.PolylineOptions;
-
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -60,7 +55,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class GUIController implements Initializable {
-    private static final Logger logger = LogManager.getLogger(GUIController.class);
 
     @FXML
     private Label ICAOLabel;
@@ -78,16 +72,7 @@ public class GUIController implements Initializable {
     private Label altitudeLabel;
 
     @FXML
-    private TextField tcpServerPort;
-
-    @FXML
-    private TextField tcpTargetPort;
-
-    @FXML
     private TextArea termial;
-
-    @FXML
-    private TextField udpPort;
 
     @FXML
     private Label callLabel;
@@ -196,7 +181,7 @@ public class GUIController implements Initializable {
                     try {
                         UDPHandler udpInjector = new UDPHandler(12345, UDPHandler.mode.slower, "127.0.0.2");
                         udpInjector.fillList();
-                        udpInjector.serveWriterThread();
+                        udpInjector.serve();
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
@@ -207,11 +192,6 @@ public class GUIController implements Initializable {
         }
 
     }
-
-    @FXML
-    public void resetHandler(ActionEvent event) {
-        this.controller.udpHandler.resetSocket(Integer.parseInt(udpPort.getText()));
-    }   
 
     @FXML
     public void r_map(ActionEvent event) {
@@ -285,6 +265,7 @@ public class GUIController implements Initializable {
         Plane p = ListUDP.getSelectionModel().getSelectedItem();
         updateLabel(p);
     }
+
     public void update() {
         synchronized (lock) {
 
@@ -313,8 +294,11 @@ public class GUIController implements Initializable {
     }
 
     public void backgroundupdate() {
+
         controller.getOpensky();
+
         updateStatus = true;
+
     }
 
     public void plotPlane(ArrayList<Plane> hp) {
@@ -350,27 +334,51 @@ public class GUIController implements Initializable {
     }
 
     public void toMarkers() {
+
         //ADSBMarker = new HashSet<>();
         markersmap = new HashMap<Plane, Marker>();
         // MarkerOptions options = new MarkerOptions();
-        if(view_adsb.isSelected()){
-            for (Plane p : ListADSB.getItems()) {
-                Marker marker = toMarker(p);
-                markersmap.put(p, marker);
+
+        for (Plane p : ListADSB.getItems()) {
+            MarkerOptionsAlt options = new MarkerOptionsAlt();
+            options.rotation((int) p.heading);
+            if (p.heading <= (0 + 12.25) || p.heading >= (360 - 12.25)) {
+                options.icon(Plane0);
+            } else if (p.heading <= (335 + 12.25) && p.heading >= (335 - 12.25)) {
+                options.icon(Plane337_5);
+            } else if (p.heading <= (310 + 12.25) && p.heading >= (310 - 12.25)) {
+                options.icon(Plane315);
+            } else if (p.heading <= (285 + 12.25) && p.heading >= (285 - 12.25)) {
+                options.icon(Plane292_5);
+            } else if (p.heading <= (260 + 12.25) && p.heading >= (260 - 12.25)) {
+                options.icon(Plane270);
+            } else if (p.heading <= (235 + 12.25) && p.heading >= (235 - 12.25)) {
+                options.icon(Plane247_5);
+            } else if (p.heading <= (210 + 12.25) && p.heading >= (210 - 12.25)) {
+                options.icon(Plane225);
+            } else if (p.heading <= (185 + 12.25) && p.heading >= (185 - 12.25)) {
+                options.icon(Plane202_5);
+            } else if (p.heading <= (160 + 12.25) && p.heading >= (160 - 12.25)) {
+                options.icon(Plane180);
+            } else if (p.heading <= (135 + 12.25) && p.heading >= (135 - 12.25)) {
+                options.icon(Plane157_5);
+            } else if (p.heading <= (110 + 12.25) && p.heading >= (110 - 12.25)) {
+                options.icon(Plane112_5);
+            } else if (p.heading <= (85 + 12.25) && p.heading >= (85 - 12.25)) {
+                options.icon(Plane90);
+            } else if (p.heading <= (60 + 12.25) && p.heading >= (60 - 12.25)) {
+                options.icon(Plane67_5);
+            } else if (p.heading <= (35 + 12.25) && p.heading >= (35 - 12.25)) {
+                options.icon(Plane45);
+            } else if (p.heading <= (10 + 12.25)) {
+                options.icon(Plane22_5);
             }
+            options.position(new LatLong(p.lat, p.lon));
+            Marker marker = new Marker(options);
+            //ADSBMarker.add(marker);
+            markersmap.put(p, marker);
         }
-        if(view_tcp.isSelected()){
-            for (Plane p : ListTCP.getItems()) {
-                Marker marker = toMarker(p);
-                markersmap.put(p, marker);
-            }
-        }
-        if(view_adsb.isSelected()){
-            for (Plane p : ListUDP.getItems()) {
-                Marker marker = toMarker(p);
-                markersmap.put(p, marker);
-            }
-        }
+
     }
 
     public void updateMarkers(){ 
@@ -426,15 +434,6 @@ public class GUIController implements Initializable {
         return new Marker(options);
     }
 
-
-    /**
-     * @param
-     * Plane p
-     * 
-     * @TODO
-     * 1.setLabel
-     * 2.setCenter
-     */
     public void updateLabel(Plane p) {
 
         latitudeLabel.setText(formatter.format(p.lat));
@@ -447,23 +446,7 @@ public class GUIController implements Initializable {
         speedLabel.setText(formatter.format(p.speed));
     }
 
-    public void relayTransmission(){
-        ArrayList<Plane> toudp = new ArrayList<>();
-        ArrayList<Plane> totcp = new ArrayList<>();
-        if(f_udp.isSelected()){
-            totcp.addAll(controller.getUDPwoFilter());
-        }
-        if(f_tcp.isSelected()){
-            totcp.addAll(controller.getTCPwoFilter());
-            toudp.addAll(controller.getTCPwoFilter());
-        }
-        if(f_opensky.isSelected()){
-            totcp.addAll(controller.getADSBList());
-            toudp.addAll(controller.getADSBList());
-        }
-        controller.setUDPList(toudp);
-        controller.setTCPList(totcp);
-    }
+    
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -474,7 +457,6 @@ public class GUIController implements Initializable {
             // do whatever you want with the Exception e
             Platform.runLater(new Runnable() {
                 public void run() {
-                    termial.clear();
                     termial.appendText(e.getMessage());
                 }
             });
@@ -503,7 +485,7 @@ public class GUIController implements Initializable {
                             }
                         }));
         fiveSecondsWonder.setCycleCount(Timeline.INDEFINITE);
-        // fiveSecondsWonder.play();
+        fiveSecondsWonder.play();
 
         new Thread() {
 
@@ -515,14 +497,10 @@ public class GUIController implements Initializable {
                         synchronized (ADSBlock) {
                             backgroundupdate();
                         }
-                        relayTransmission();
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     } finally {
                         try {
-                            logger.log(Level.INFO, "purged TCP {}", String.valueOf(controller.getTCPwoFilter().size()));
-                            logger.log(Level.INFO, "purged UDP {}", String.valueOf(controller.getUDPwoFilter().size()));
-                            logger.log(Level.INFO, "purged ADSB {}", String.valueOf(controller.getADSBList().size()));
                             Thread.sleep(15000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
@@ -587,7 +565,7 @@ public class GUIController implements Initializable {
         //     }
         // });
         Timeline fiveSecondsUDP = new Timeline(
-                new KeyFrame(Duration.seconds(5),
+                new KeyFrame(Duration.seconds(1),
                         new EventHandler<ActionEvent>() {
                             @Override
                             public void handle(ActionEvent event) {
@@ -602,110 +580,25 @@ public class GUIController implements Initializable {
                                 ArrayList<Marker> udpMarker = new ArrayList<>();
                                 for (Plane p : udptemp) {
                                     Marker m = toMarker(p);
-                                    //udpMarker.add(m);
-                                    markersmap.put(p,m);
+                                    udpMarker.add(m);
                                     // markers.add(m);
                                     // markersmap.put(p.mac,m);
-                                }
-                                try{
-                                    Plane p = ListUDP.getSelectionModel().getSelectedItem();
-                                    if(p != null) {
-                                        markersmap.put(p,toBlueMarker(p));
-                                    }
-                                }catch(Exception e){
-                                    e.printStackTrace();
                                 }
                                 updateMarkers();
                             }
                         }));
         fiveSecondsUDP.setCycleCount(Timeline.INDEFINITE);
-        
-        Timeline fiveSecondsTCP = new Timeline(
-                new KeyFrame(Duration.seconds(5),
-                        new EventHandler<ActionEvent>() {
-                            @Override
-                            public void handle(ActionEvent event) {
-                                ArrayList<Plane> tcptemp = new ArrayList<>();
-                                System.out.println("Getting tcplist from controller");
-                                tcptemp = controller.getTCPList();
-                                System.out.println("TCPlist size " + tcptemp.size());
-                                ObservableList<Plane> observableArrayListTCP = FXCollections
-                                        .observableArrayList(tcptemp);
-                                ListTCP.setItems(observableArrayListTCP);
-                                ListTCP.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-                                ArrayList<Marker> tcpMarker = new ArrayList<>();
-                                for (Plane p : tcptemp) {
-                                    Marker m = toMarker(p);
-                                    // udpMarker.add(m);
-                                    markersmap.put(p, m);
-                                    // markers.add(m);
-                                    // markersmap.put(p.mac,m);
-                                }
-                                try {
-                                    Plane p = ListTCP.getSelectionModel().getSelectedItem();
-                                    if (p != null) {
-                                        markersmap.put(p, toBlueMarker(p));
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                                updateMarkers();
-                            }
-                        }));
-        fiveSecondsTCP.setCycleCount(Timeline.INDEFINITE);
-        Timeline fiveSecondsADSB = new Timeline(
-                new KeyFrame(Duration.seconds(5),
-                        new EventHandler<ActionEvent>() {
-                            @Override
-                            public void handle(ActionEvent event) {
-                                ArrayList<Plane> adsbtemp = new ArrayList<>();
-                                System.out.println("Getting adsblist from controller");
-                                adsbtemp = controller.getADSBList();
-                                System.out.println("ADSBlist size " + adsbtemp.size());
-                                ObservableList<Plane> observableArrayListADSB = FXCollections
-                                        .observableArrayList(adsbtemp);
-                                ListADSB.setItems(observableArrayListADSB);
-                                ListADSB.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-                                ArrayList<Marker> adsbMarker = new ArrayList<>();
-                                for (Plane p : adsbtemp) {
-                                    Marker m = toMarker(p);
-                                    // udpMarker.add(m);
-                                    markersmap.put(p, m);
-                                    // markers.add(m);
-                                    // markersmap.put(p.mac,m);
-                                }
-                                try {
-                                    Plane p = ListADSB.getSelectionModel().getSelectedItem();
-                                    if (p != null) {
-                                        markersmap.put(p, toBlueMarker(p));
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                                
-                                updateMarkers();
-                            }
-                        }));
-        fiveSecondsADSB.setCycleCount(Timeline.INDEFINITE);
-
+        fiveSecondsUDP.play();
 
         srcTabPane.getSelectionModel().selectedItemProperty().addListener(
                 new ChangeListener<Tab>() {
                     @Override
                     public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
 
-                        if (t1.getText().equals("ADSB")) {
-                            fiveSecondsTCP.stop();
-                            fiveSecondsUDP.stop();
-                            fiveSecondsADSB.play();
-                        } else if(t1.getText().equals("TCP")) {
-                            fiveSecondsUDP.stop();
-                            fiveSecondsADSB.stop();
-                            fiveSecondsTCP.play();
-                        } else if(t1.getText().equals("UDP")){
-                            fiveSecondsADSB.stop();
-                            fiveSecondsTCP.stop();
+                        if (t1.getText().equals("UDP")) {
                             fiveSecondsUDP.play();
+                        } else {
+                            fiveSecondsUDP.stop();
                         }
 
                         System.out.println("Tab Selection changed to " + t1.toString());
