@@ -239,8 +239,8 @@ public class GUIController implements Initializable {
         Plane p = ListADSB.getSelectionModel().getSelectedItem();
         updateLabel(p);
         //mapmarkers.put(
-        map.removeMarker(markersmap.get(p));
-        map.addMarker(toBlueMarker(p));
+        // map.removeMarker(markersmap.get(p));
+        // map.addMarker(toBlueMarker(p));
         selectedPlaneHistory = p;
         Task<ArrayList<Plane>> gethistoryOpen = new Task<ArrayList<Plane>>() {
             @Override
@@ -298,9 +298,9 @@ public class GUIController implements Initializable {
                     .observableArrayList(controller.getADSBList());
             ListADSB.setItems(observableArrayListADSB);
             ListADSB.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-            toMarkers();
-            map.clearMarkers();
-            map.addMarkers(markers);
+            // toMarkers();
+            // map.clearMarkers();
+            // map.addMarkers(markers);
             long t2 = System.currentTimeMillis();
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
@@ -351,26 +351,27 @@ public class GUIController implements Initializable {
 
     public void toMarkers() {
         //ADSBMarker = new HashSet<>();
-        markersmap = new HashMap<Plane, Marker>();
+        // markersmap = new HashMap<Plane, Marker>();
+        // markersmap.clear();
         // MarkerOptions options = new MarkerOptions();
-        if(view_adsb.isSelected()){
-            for (Plane p : ListADSB.getItems()) {
-                Marker marker = toMarker(p);
-                markersmap.put(p, marker);
-            }
-        }
-        if(view_tcp.isSelected()){
-            for (Plane p : ListTCP.getItems()) {
-                Marker marker = toMarker(p);
-                markersmap.put(p, marker);
-            }
-        }
-        if(view_adsb.isSelected()){
-            for (Plane p : ListUDP.getItems()) {
-                Marker marker = toMarker(p);
-                markersmap.put(p, marker);
-            }
-        }
+        // if(view_adsb.isSelected()){
+        //     for (Plane p : ListADSB.getItems()) {
+        //         Marker marker = toMarker(p);
+        //         markersmap.put(p, marker);
+        //     }
+        // }
+        // if(view_tcp.isSelected()){
+        //     for (Plane p : ListTCP.getItems()) {
+        //         Marker marker = toMarker(p);
+        //         markersmap.put(p, marker);
+        //     }
+        // }
+        // if(view_adsb.isSelected()){
+        //     for (Plane p : ListUDP.getItems()) {
+        //         Marker marker = toMarker(p);
+        //         markersmap.put(p, marker);
+        //     }
+        // }
     }
 
     public void updateMarkers(){ 
@@ -600,20 +601,23 @@ public class GUIController implements Initializable {
                                 ListUDP.setItems(observableArrayListUDP);
                                 ListUDP.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
                                 ArrayList<Marker> udpMarker = new ArrayList<>();
-                                for (Plane p : udptemp) {
-                                    Marker m = toMarker(p);
-                                    //udpMarker.add(m);
-                                    markersmap.put(p,m);
-                                    // markers.add(m);
-                                    // markersmap.put(p.mac,m);
-                                }
-                                try{
-                                    Plane p = ListUDP.getSelectionModel().getSelectedItem();
-                                    if(p != null) {
-                                        markersmap.put(p,toBlueMarker(p));
+                                if(view_udp.isSelected()){
+                                    for (Plane p : udptemp) {
+                                        Marker m = toMarker(p);
+                                        // udpMarker.add(m);
+                                        markersmap.put(p, m);
+                                        // markers.add(m);
+                                        // markersmap.put(p.mac,m);
                                     }
-                                }catch(Exception e){
-                                    e.printStackTrace();
+                                    try {
+                                        Plane p = ListUDP.getSelectionModel().getSelectedItem();
+                                        if (p != null) {
+                                            // markersmap.put(p,toBlueMarker(p));
+                                            updateLabel(p);
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                                 updateMarkers();
                             }
@@ -634,21 +638,25 @@ public class GUIController implements Initializable {
                                 ListTCP.setItems(observableArrayListTCP);
                                 ListTCP.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
                                 ArrayList<Marker> tcpMarker = new ArrayList<>();
-                                for (Plane p : tcptemp) {
-                                    Marker m = toMarker(p);
-                                    // udpMarker.add(m);
-                                    markersmap.put(p, m);
-                                    // markers.add(m);
-                                    // markersmap.put(p.mac,m);
-                                }
-                                try {
-                                    Plane p = ListTCP.getSelectionModel().getSelectedItem();
-                                    if (p != null) {
-                                        markersmap.put(p, toBlueMarker(p));
+                                if(view_tcp.isSelected()) {
+                                    for (Plane p : tcptemp) {
+                                        Marker m = toMarker(p);
+                                        // udpMarker.add(m);
+                                        markersmap.put(p, m);
+                                        // markers.add(m);
+                                        // markersmap.put(p.mac,m);
                                     }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                                    try {
+                                        Plane p = ListTCP.getSelectionModel().getSelectedItem();
+                                        if (p != null) {
+                                            // markersmap.put(p, toBlueMarker(p));
+                                            updateLabel(p);
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                 }
+                                
                                 updateMarkers();
                             }
                         }));
@@ -667,20 +675,23 @@ public class GUIController implements Initializable {
                                 ListADSB.setItems(observableArrayListADSB);
                                 ListADSB.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
                                 ArrayList<Marker> adsbMarker = new ArrayList<>();
-                                for (Plane p : adsbtemp) {
-                                    Marker m = toMarker(p);
-                                    // udpMarker.add(m);
-                                    markersmap.put(p, m);
-                                    // markers.add(m);
-                                    // markersmap.put(p.mac,m);
-                                }
-                                try {
-                                    Plane p = ListADSB.getSelectionModel().getSelectedItem();
-                                    if (p != null) {
-                                        markersmap.put(p, toBlueMarker(p));
+                                if(view_adsb.isSelected()){
+                                    for (Plane p : adsbtemp) {
+                                        Marker m = toMarker(p);
+                                        // udpMarker.add(m);
+                                        markersmap.put(p, m);
+                                        // markers.add(m);
+                                        // markersmap.put(p.mac,m);
                                     }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                                    try {
+                                        Plane p = ListADSB.getSelectionModel().getSelectedItem();
+                                        if (p != null) {
+                                            // markersmap.put(p, toBlueMarker(p));
+                                            updateLabel(p);
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                                 
                                 updateMarkers();
