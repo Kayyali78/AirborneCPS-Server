@@ -6,9 +6,12 @@ import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Scanner;
-
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.status.StatusData;
 public class UDPHandler {
     public static final Object recvlock = new Object();
     public static final Object sendlock = new Object();
@@ -28,9 +31,9 @@ public class UDPHandler {
     Thread readerThread = null;
     Thread writerThread = null;
 
-    ArrayList<String> receivedBuffer = new ArrayList<String>();
-    ArrayList<Plane> senderBuffer = new ArrayList<Plane>();
-
+    HashSet<String> receivedBuffer = new HashSet<String>();
+    HashSet<Plane> senderBuffer = new HashSet<Plane>();
+    private static final Logger logger = LogManager.getLogger(UDPHandler.class);
     public UDPHandler() {
         this(21221, mode.normal);
     }
@@ -42,7 +45,7 @@ public class UDPHandler {
         path = path.substring(6, path.length());
         FileInputStream fileInput = new FileInputStream(path);
         Scanner s1 = new Scanner(fileInput);
-        ArrayList<Plane> planes = new ArrayList<>();
+        HashSet<Plane> planes = new HashSet<>();
         while (s1.hasNextLine()) {
             String beacon = s1.nextLine();
             try {
@@ -53,26 +56,27 @@ public class UDPHandler {
             }
         }
         synchronized (senderBuffer) {
-            senderBuffer = new ArrayList<>(planes);
+            senderBuffer = new HashSet<>(planes);
         }
     }
 
-    public synchronized ArrayList<String> getBuffer() {
-        ArrayList<String> buffer = new ArrayList<String>();
+    public synchronized HashSet<String> getBuffer() {
+        HashSet<String> buffer = new HashSet<String>();
         synchronized (receivedBuffer) {
-            buffer = new ArrayList<String>(receivedBuffer);
-            System.out.println("UDPHandler: rbuffer has " + receivedBuffer.size());
+            buffer = new HashSet<String>(receivedBuffer);
+            logger.info("rbuffer has " + receivedBuffer.size());
             receivedBuffer.clear();
-            System.out.println("UDPHandler: cbuffer has " + buffer.size());
+            logger.info("cbuffer has " + buffer.size());
         }
         return buffer;
     }
 
-    public synchronized void updateSenderBuffer(ArrayList<Plane> in) {
+    public synchronized void updateSenderBuffer(HashSet<Plane> in) {
         try {
             synchronized (senderBuffer) {
-                senderBuffer = new ArrayList<>(in);
+                senderBuffer = new HashSet<>(in);
             }
+            logger.info("UDPSenderBuffer Updated");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -189,7 +193,11 @@ public class UDPHandler {
                         try {
                             synchronized (senderBuffer) {
                                 for (Plane p : senderBuffer) {
+                                    if(getName().equals("UDPInjector")){
+                                        logger.info("UDP broad : {}", p.getBeacon());
+                                    }
                                     byte[] buf = p.getBeacon().getBytes(StandardCharsets.UTF_8);
+                                    
                                     DatagramPacket sendpkt = new DatagramPacket(buf, buf.length,
                                             InetAddress.getByName("255.255.255.255"), 21221);
                                     outSocket.send(sendpkt);
@@ -217,11 +225,14 @@ public class UDPHandler {
     }
 
     public void serve(){
+        readerThread.setName("UDPReader");
         readerThread.start();
+        writerThread.setName("UDPWriter");
         writerThread.start();
     }
 
     public void serveWriterThread(){
+        writerThread.setName("UDPInjector");
         writerThread.start();
     }
 

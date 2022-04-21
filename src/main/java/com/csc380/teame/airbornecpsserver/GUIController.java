@@ -7,14 +7,16 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.ResourceBundle;
 
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.status.StatusData;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
@@ -58,6 +60,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
 
 public class GUIController implements Initializable {
     private static final Logger logger = LogManager.getLogger(GUIController.class);
@@ -194,8 +197,10 @@ public class GUIController implements Initializable {
                 @Override
                 public void run() {
                     try {
+                        setName("udpInjectorThread");
                         UDPHandler udpInjector = new UDPHandler(12345, UDPHandler.mode.slower, "127.0.0.2");
                         udpInjector.fillList();
+                        udpInjector.renewThread();
                         udpInjector.serveWriterThread();
                     } catch (Exception ex) {
                         ex.printStackTrace();
@@ -242,19 +247,19 @@ public class GUIController implements Initializable {
         map.removeMarker(markersmap.get(p));
         map.addMarker(toBlueMarker(p));
         selectedPlaneHistory = p;
-        Task<ArrayList<Plane>> gethistoryOpen = new Task<ArrayList<Plane>>() {
+        Task<HashSet<Plane>> gethistoryOpen = new Task<HashSet<Plane>>() {
             @Override
-            public ArrayList<Plane> call() throws Exception {
+            public HashSet<Plane> call() throws Exception {
                 // do background update here;
-                // return new ArrayList<Plane>();
+                // return new HashSet<Plane>();
                 return controller.getSomePlane(selectedPlaneHistory);
             }
         };
         gethistoryOpen.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent event) {
-                System.out.println(Thread.currentThread().getName() + " finishes the work");
-                ArrayList<Plane> ar = gethistoryOpen.getValue();
+                logger.info(Thread.currentThread().getName() + " finishes the work");
+                HashSet<Plane> ar = gethistoryOpen.getValue();
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
@@ -290,22 +295,22 @@ public class GUIController implements Initializable {
 
             long t1 = System.currentTimeMillis();
 
-            ObservableList<Plane> observableArrayListTCP = FXCollections
-                    .observableArrayList(controller.getTCPList());
-            ListTCP.setItems(observableArrayListTCP);
-            ListTCP.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-            ObservableList<Plane> observableArrayListADSB = FXCollections
-                    .observableArrayList(controller.getADSBList());
-            ListADSB.setItems(observableArrayListADSB);
-            ListADSB.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+            // ObservableList<Plane> observableHashSetTCP = FXCollections
+            //         .observableHashSet(controller.getTCPList());
+            // ListTCP.setItems(observableHashSetTCP);
+            // ListTCP.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+            // ObservableList<Plane> observableHashSetADSB = FXCollections
+            //         .observableHashSet(controller.getADSBList());
+            // ListADSB.setItems(observableHashSetADSB);
+            // ListADSB.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
             // toMarkers();
             // map.clearMarkers();
             // map.addMarkers(markers);
-            long t2 = System.currentTimeMillis();
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-            LocalDateTime now = LocalDateTime.now();
-            System.out.print(dtf.format(now));
-            System.out.println(Thread.currentThread().getName() + " ADSB update took: " + (t2 - t1) + " ms");
+            // long t2 = System.currentTimeMillis();
+            // DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+            // LocalDateTime now = LocalDateTime.now();
+            // System.out.print(dtf.format(now));
+            // logger.info(Thread.currentThread().getName() + " ADSB update took: " + (t2 - t1) + " ms");
 
             // updateStatus = false;
 
@@ -317,11 +322,11 @@ public class GUIController implements Initializable {
         updateStatus = true;
     }
 
-    public void plotPlane(ArrayList<Plane> hp) {
+    public void plotPlane(HashSet<Plane> hp) {
         // LatLong [] arr = null;
         if (hp.size() <= 0)
             return;
-        ArrayList<LatLong> ll = new ArrayList<>();
+        HashSet<LatLong> ll = new HashSet<>();
         for (Plane p : hp) {
             ll.add(new LatLong(p.lat, p.lon));
         }
@@ -476,8 +481,8 @@ public class GUIController implements Initializable {
     }
 
     public void relayTransmission(){
-        ArrayList<Plane> toudp = new ArrayList<>();
-        ArrayList<Plane> totcp = new ArrayList<>();
+        HashSet<Plane> toudp = new HashSet<>();
+        HashSet<Plane> totcp = new HashSet<>();
         if(f_udp.isSelected()){
             totcp.addAll(controller.getUDPwoFilter());
         }
@@ -495,6 +500,7 @@ public class GUIController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        logger.info("GUIController Initializing");
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
             // show alert to user
             e.printStackTrace();
@@ -519,14 +525,14 @@ public class GUIController implements Initializable {
 
                             @Override
                             public void handle(ActionEvent event) {
-                                // System.out.println("this is called every 5 seconds on UI thread");
+                                // logger.info("this is called every 5 seconds on UI thread");
                                 // long t1 = System.currentTimeMillis();
                                 // //update();
                                 // long t2 = System.currentTimeMillis();
                                 // DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
                                 // LocalDateTime now = LocalDateTime.now();
                                 // System.out.print(dtf.format(now));
-                                // System.out.println(Thread.currentThread().getName() + " ADSB update took: " +
+                                // logger.info(Thread.currentThread().getName() + " ADSB update took: " +
                                 // (t2-t1) + " ms" );
                             }
                         }));
@@ -575,7 +581,7 @@ public class GUIController implements Initializable {
         //                 map.clearMarkers();
 
         //             }
-        //             System.out.println(observable);
+        //             logger.info(observable);
 
         //         }
         //     }
@@ -592,7 +598,7 @@ public class GUIController implements Initializable {
         //             } else if (oldValue) {
         //                 map.clearMarkers();
         //             }
-        //             System.out.println(observable);
+        //             logger.info(observable);
         //         }
         //     }
         // });
@@ -609,7 +615,7 @@ public class GUIController implements Initializable {
         //                 map.clearMarkers();
 
         //             }
-        //             System.out.println(observable);
+        //             logger.info(observable);
 
         //         }
         //     }
@@ -619,15 +625,15 @@ public class GUIController implements Initializable {
                         new EventHandler<ActionEvent>() {
                             @Override
                             public void handle(ActionEvent event) {
-                                ArrayList<Plane> udptemp = new ArrayList<>();
-                                System.out.println("Getting udplist from controller");
+                                HashSet<Plane> udptemp = new HashSet<>();
+                                logger.info("Getting udplist from controller");
                                 udptemp = controller.getUDPList();
-                                System.out.println("UDPlist size " + udptemp.size());
-                                ObservableList<Plane> observableArrayListUDP = FXCollections
-                                        .observableArrayList(udptemp);
-                                ListUDP.setItems(observableArrayListUDP);
+                                logger.info("UDPlist size " + udptemp.size());
+                                ObservableList<Plane> observableListUDP = FXCollections
+                                        .observableList(new ArrayList<Plane>(udptemp));
+                                ListUDP.setItems(observableListUDP);
                                 ListUDP.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-                                ArrayList<Marker> udpMarker = new ArrayList<>();
+                                HashSet<Marker> udpMarker = new HashSet<>();
                                 for (Plane p : udptemp) {
                                     Marker m = toMarker(p);
                                     //udpMarker.add(m);
@@ -653,15 +659,15 @@ public class GUIController implements Initializable {
                         new EventHandler<ActionEvent>() {
                             @Override
                             public void handle(ActionEvent event) {
-                                ArrayList<Plane> tcptemp = new ArrayList<>();
-                                System.out.println("Getting tcplist from controller");
+                                HashSet<Plane> tcptemp = new HashSet<>();
+                                logger.info("Getting tcplist from controller");
                                 tcptemp = controller.getTCPList();
-                                System.out.println("TCPlist size " + tcptemp.size());
-                                ObservableList<Plane> observableArrayListTCP = FXCollections
-                                        .observableArrayList(tcptemp);
-                                ListTCP.setItems(observableArrayListTCP);
+                                logger.info("TCPlist size " + tcptemp.size());
+                                ObservableList<Plane> observableHashSetTCP = FXCollections
+                                        .observableList(new ArrayList<Plane>(tcptemp));
+                                ListTCP.setItems(observableHashSetTCP);
                                 ListTCP.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-                                ArrayList<Marker> tcpMarker = new ArrayList<>();
+                                HashSet<Marker> tcpMarker = new HashSet<>();
                                 for (Plane p : tcptemp) {
                                     Marker m = toMarker(p);
                                     // udpMarker.add(m);
@@ -686,15 +692,15 @@ public class GUIController implements Initializable {
                         new EventHandler<ActionEvent>() {
                             @Override
                             public void handle(ActionEvent event) {
-                                ArrayList<Plane> adsbtemp = new ArrayList<>();
-                                System.out.println("Getting adsblist from controller");
+                                HashSet<Plane> adsbtemp = new HashSet<>();
+                                logger.info("Getting adsblist from controller");
                                 adsbtemp = controller.getADSBList();
-                                System.out.println("ADSBlist size " + adsbtemp.size());
-                                ObservableList<Plane> observableArrayListADSB = FXCollections
-                                        .observableArrayList(adsbtemp);
-                                ListADSB.setItems(observableArrayListADSB);
+                                logger.info("ADSBlist size " + adsbtemp.size());
+                                ObservableList<Plane> observableHashSetADSB = FXCollections
+                                        .observableList(new ArrayList<Plane>(adsbtemp));
+                                ListADSB.setItems(observableHashSetADSB);
                                 ListADSB.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-                                ArrayList<Marker> adsbMarker = new ArrayList<>();
+                                HashSet<Marker> adsbMarker = new HashSet<>();
                                 for (Plane p : adsbtemp) {
                                     Marker m = toMarker(p);
                                     // udpMarker.add(m);
@@ -736,7 +742,7 @@ public class GUIController implements Initializable {
                             fiveSecondsUDP.play();
                         }
 
-                        System.out.println("Tab Selection changed to " + t1.toString());
+                        logger.info("Tab Selection changed to " + t1.toString());
                     }
                 });
 

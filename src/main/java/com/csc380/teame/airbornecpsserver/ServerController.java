@@ -3,7 +3,7 @@ package com.csc380.teame.airbornecpsserver;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Array;
 import java.net.DatagramSocket;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.regex.*;
 
 import com.dlsc.gmapsfx.javascript.object.LatLong;
@@ -12,6 +12,11 @@ import com.dlsc.gmapsfx.service.elevation.ElevationService;
 import com.dlsc.gmapsfx.service.elevation.PathElevationRequest;
 import com.dlsc.gmapsfx.shapes.Polyline;
 import com.dlsc.gmapsfx.shapes.PolylineOptions;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.status.StatusData;
 
 import org.opensky.api.OpenSkyApi;
 import org.opensky.api.OpenSkyApi.BoundingBox;
@@ -24,9 +29,9 @@ import java.time.LocalDateTime;
 
 public class ServerController {
     DatagramSocket socket;
-    ArrayList<Plane> ListTCP;
-    ArrayList<Plane> ListUDP;
-    ArrayList<Plane> ListADSB;
+    HashSet<Plane> ListTCP;
+    HashSet<Plane> ListUDP;
+    HashSet<Plane> ListADSB;
     static final String USERNAME = null;
     static final String PASSWORD = null;
     OpenSkyApi api = new OpenSkyApi(USERNAME, PASSWORD);
@@ -37,12 +42,12 @@ public class ServerController {
     public String zeroTo255 = "(\\d{1,2}|(0|1)\\" + "d{2}|2[0-4]\\d|25[0-5])";
     public String IPregex = zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255;
     Pattern IPPattern = Pattern.compile(IPregex);
-
+    private static final Logger logger = LogManager.getLogger(ServerController.class);
     ServerController(){
-        ListUDP = new ArrayList<>();
-        ListADSB = new ArrayList<>();
-        ListTCP = new ArrayList<>();
-        ListUDP = new ArrayList<>();
+        ListUDP = new HashSet<>();
+        ListADSB = new HashSet<>();
+        ListTCP = new HashSet<>();
+        ListUDP = new HashSet<>();
         udpHandler = new UDPHandler();
         server = new Server();
         try {
@@ -67,9 +72,9 @@ public class ServerController {
 
 
 
-    public ArrayList<Plane> getUDPList() {
-        ArrayList<Plane> temp = new ArrayList<>();
-        ArrayList<String> udpBuf = udpHandler.getBuffer();
+    public HashSet<Plane> getUDPList() {
+        HashSet<Plane> temp = new HashSet<>();
+        HashSet<String> udpBuf = udpHandler.getBuffer();
         for (String s : udpBuf) {
             try {
                 //double check if ip field is valid
@@ -87,27 +92,27 @@ public class ServerController {
         //return ListUDP;
     }
 
-    public void setUDPList(ArrayList<Plane> list) {
+    public void setUDPList(HashSet<Plane> list) {
         this.udpHandler.updateSenderBuffer(list);
     }
 
-    public void setTCPList(ArrayList<Plane> list){
+    public void setTCPList(HashSet<Plane> list){
         this.server.setTCPList(list);
     }
     
-    public ArrayList<Plane> getUDPwoFilter(){
+    public HashSet<Plane> getUDPwoFilter(){
         return ListUDP;
     }
 
-    public ArrayList<Plane> getTCPwoFilter(){
+    public HashSet<Plane> getTCPwoFilter(){
         return ListTCP;
     }
 
-    public ArrayList<Plane> getTCPList() {
+    public HashSet<Plane> getTCPList() {
         try{
-            ArrayList<Plane> temp = new ArrayList<>();
+            HashSet<Plane> temp = new HashSet<>();
             //TCPHandler tcpHandler = server.returnTCPHandler();
-            ArrayList<String> tcptemp = TCPHandler.getReaderBuffer();
+            HashSet<String> tcptemp = TCPHandler.getReaderBuffer();
             for (String s : tcptemp) {
                 try {
                     temp.add(new Plane(s));
@@ -121,11 +126,11 @@ public class ServerController {
         }catch (Exception e) {
             e.printStackTrace();
         }
-        return new ArrayList<Plane>();
+        return new HashSet<Plane>();
 
     }
 
-    public ArrayList<Plane> getADSBList() {
+    public HashSet<Plane> getADSBList() {
         return ListADSB;
     }
 
@@ -134,7 +139,7 @@ public class ServerController {
     }
 
     public void getOpensky(BoundingBox bbox) {
-        ArrayList<Plane> list = new ArrayList<>();
+        HashSet<Plane> list = new HashSet<>();
         long t1 = System.currentTimeMillis();
         synchronized (openskyLock) {
             try {
@@ -157,7 +162,7 @@ public class ServerController {
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
                 LocalDateTime now = LocalDateTime.now();
                 System.out.print(dtf.format(now));
-                System.out.println(" ADSB update took: " + (t2 - t1) + " ms" + bbox.getMinLatitude() + " " + bbox.getMaxLatitude()+ " " +bbox.getMinLongitude()+ " " +bbox.getMaxLongitude());
+                logger.info(" ADSB update took: " + (t2 - t1) + " ms " + bbox.getMinLatitude() + "°N " + bbox.getMaxLatitude()+ "°N " +bbox.getMinLongitude()+ "°E " +bbox.getMaxLongitude() + "°E");
                 if (list.size() > 0) {
                     this.ListADSB = list;
                 }
@@ -172,7 +177,7 @@ public class ServerController {
         } else {
             //get some LatLong[]
             long t = Instant.now().getEpochSecond();
-            ArrayList<LatLong> l = new ArrayList<LatLong>();
+            HashSet<LatLong> l = new HashSet<LatLong>();
             String[] s = {p.mac};
             for (int i = (int) t - 60 * 30; i < (int) t; i = (int) t + 60) {
                 try {
@@ -192,8 +197,8 @@ public class ServerController {
         }
     }
 
-    public ArrayList<Plane> getSomePlane(Plane p) {
-        ArrayList<Plane> arr = new ArrayList<>();
+    public HashSet<Plane> getSomePlane(Plane p) {
+        HashSet<Plane> arr = new HashSet<>();
         if (p.isADSB == false) {
             throw new IllegalStateException("Not an Opensky plane");
         }
@@ -227,7 +232,7 @@ public class ServerController {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         System.out.print(dtf.format(now));
-        System.out.println(Thread.currentThread().getName() + " ADSB gethistory took: " + (t2 - t) + " ms");
+        logger.info(Thread.currentThread().getName() + " ADSB gethistory took: " + (t2 - t) + " ms");
         return arr;
     }
 
