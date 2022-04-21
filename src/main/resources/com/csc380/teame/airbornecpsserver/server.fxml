@@ -124,9 +124,9 @@
                         <Color red="0.624" green="0.624" blue="0.624" fx:id="x21" />
                      </textFill>
                   </Label>
-                  <CheckBox fx:id="f_opensky" layoutX="36.0" layoutY="183.0" mnemonicParsing="false" selected="true" text="Opensky" />
-                  <CheckBox fx:id="f_udp" layoutX="36.0" layoutY="213.0" mnemonicParsing="false" selected="true" text="AirborneCPS-UDP" />
-                  <CheckBox fx:id="f_tcp" layoutX="37.0" layoutY="244.0" mnemonicParsing="false" selected="true" text="AirborneCPS-TCP" />
+                  <CheckBox fx:id="f_opensky" layoutX="36.0" layoutY="183.0" mnemonicParsing="false" text="Opensky" />
+                  <CheckBox fx:id="f_udp" layoutX="36.0" layoutY="213.0" mnemonicParsing="false" text="AirborneCPS-UDP" />
+                  <CheckBox fx:id="f_tcp" layoutX="37.0" layoutY="244.0" mnemonicParsing="false" text="AirborneCPS-TCP" />
                   <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="53.0" layoutX="75.0" layoutY="315.0" stroke="BLACK" strokeType="INSIDE" width="54.0" />
                   <TextField fx:id="minLon" layoutX="3.0" layoutY="329.0" prefHeight="23.0" prefWidth="70.0" text="-124.996" />
                   <TextField fx:id="minLat" layoutX="71.0" layoutY="371.0" prefHeight="23.0" prefWidth="62.0" text="30.8389" />
