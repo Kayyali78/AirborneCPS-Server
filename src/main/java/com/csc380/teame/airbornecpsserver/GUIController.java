@@ -411,35 +411,37 @@ public class GUIController implements Initializable {
     public Marker toMarker(Plane p) {
         MarkerOptionsAlt options = new MarkerOptionsAlt();
         options.rotation((int) p.heading);
-        if (p.heading <= (0 + 12.25) || p.heading >= (360 - 12.25)) {
+        if (p.heading <= (11.25) || p.heading >= (348.75)) {
             options.icon(Plane0);
-        } else if (p.heading <= (335 + 12.25) && p.heading >= (335 - 12.25)) {
+        } else if (p.heading <= (348.75) && p.heading >= (326.25)) {
             options.icon(Plane337_5);
-        } else if (p.heading <= (310 + 12.25) && p.heading >= (310 - 12.25)) {
+        } else if (p.heading <= (326.25) && p.heading >= (303.75)) {
             options.icon(Plane315);
-        } else if (p.heading <= (285 + 12.25) && p.heading >= (285 - 12.25)) {
+        } else if (p.heading <= (303.75) && p.heading >= (281.25)) {
             options.icon(Plane292_5);
-        } else if (p.heading <= (260 + 12.25) && p.heading >= (260 - 12.25)) {
+        } else if (p.heading <= (281.25) && p.heading >= (258.75)) {
             options.icon(Plane270);
-        } else if (p.heading <= (235 + 12.25) && p.heading >= (235 - 12.25)) {
+        } else if (p.heading <= (258.75) && p.heading >= (236.25)) {
             options.icon(Plane247_5);
-        } else if (p.heading <= (210 + 12.25) && p.heading >= (210 - 12.25)) {
+        } else if (p.heading <= (236.25) && p.heading >= (213.75)) {
             options.icon(Plane225);
-        } else if (p.heading <= (185 + 12.25) && p.heading >= (185 - 12.25)) {
+        } else if (p.heading <= (213.75) && p.heading >= (191.25)) {
             options.icon(Plane202_5);
-        } else if (p.heading <= (160 + 12.25) && p.heading >= (160 - 12.25)) {
+        } else if (p.heading <= (191.25) && p.heading >= (168.75)) {
             options.icon(Plane180);
-        } else if (p.heading <= (135 + 12.25) && p.heading >= (135 - 12.25)) {
+        } else if (p.heading <= (168.75) && p.heading >= (146.25)) {
             options.icon(Plane157_5);
-        } else if (p.heading <= (110 + 12.25) && p.heading >= (110 - 12.25)) {
+        } else if (p.heading <= (146.25) && p.heading >= (123.75)) {
+            options.icon(Plane135);
+        } else if (p.heading <= (123.75) && p.heading >= (101.25)) {
             options.icon(Plane112_5);
-        } else if (p.heading <= (85 + 12.25) && p.heading >= (85 - 12.25)) {
+        } else if (p.heading <= (101.25) && p.heading >= (78.75)) {
             options.icon(Plane90);
-        } else if (p.heading <= (60 + 12.25) && p.heading >= (60 - 12.25)) {
+        } else if (p.heading <= (78.75) && p.heading >= (56.25)) {
             options.icon(Plane67_5);
-        } else if (p.heading <= (35 + 12.25) && p.heading >= (35 - 12.25)) {
+        } else if (p.heading <= (56.25) && p.heading >= (33.75)) {
             options.icon(Plane45);
-        } else if (p.heading <= (10 + 12.25)) {
+        } else if (p.heading <= (33.75) && p.heading >= (11.25)) {
             options.icon(Plane22_5);
         }
         options.position(new LatLong(p.lat, p.lon));
