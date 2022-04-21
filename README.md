@@ -46,7 +46,7 @@ OpenSkyStates os = api.getStates(0,null, bbox);
 
 ```
 
-The opensky-api will return the selected region of planes in ArrayList.
+The opensky-api will return the selected region of planes in HashSet.
 
 The plane will given in StateVector, which is a dict.
 ```java
