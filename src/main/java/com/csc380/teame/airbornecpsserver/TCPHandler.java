@@ -3,9 +3,10 @@ package com.csc380.teame.airbornecpsserver;
 import java.io.*;
 import java.lang.reflect.Array;
 import java.net.*;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 import static java.lang.Thread.sleep;
 
@@ -15,8 +16,8 @@ public class TCPHandler implements Runnable{
     private final static String helptext = "Syntax: java -jar tcpbeacons.jar (-server PORT? FILENAME | -client IP PORT FILENAME) slow? slow?";
     private Socket clientSocket = new Socket();
 
-    static ArrayList<String> readerBuf = new ArrayList<String>();
-    static ArrayList<Plane> writerBuf = new ArrayList<Plane>();
+    static HashSet<String> readerBuf = new HashSet<String>();
+    static HashSet<Plane> writerBuf = new HashSet<Plane>();
     // Object rlock = new Object(), wlock = new Object();
 
     public TCPHandler(Socket socket) throws FileNotFoundException {
@@ -30,15 +31,15 @@ public class TCPHandler implements Runnable{
         }
     }
 
-    public static synchronized ArrayList<String> getReaderBuffer(){
+    public static synchronized HashSet<String> getReaderBuffer(){
         synchronized (readerBuf){
             return readerBuf;
         }
     }
-    public static void updateSenderBuffer(ArrayList<Plane> in) {
+    public static void updateSenderBuffer(HashSet<Plane> in) {
         try {
             synchronized (writerBuf) {
-                writerBuf = new ArrayList<>(in);
+                writerBuf = new HashSet<>(in);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -46,11 +47,11 @@ public class TCPHandler implements Runnable{
     }
 
     // public List<Plane> getBuffer() {
-    //     updateSenderBuffer((ArrayList<Plane>) writerBuf);
+    //     updateSenderBuffer((HashSet<Plane>) writerBuf);
     //     return writerBuf;
     // }
 
-    public void write(List<Plane> arr) {
+    public void write(Set<Plane> arr) {
         synchronized (writerBuf) {
             writerBuf.addAll(arr);
         }
@@ -59,9 +60,9 @@ public class TCPHandler implements Runnable{
 
 
     public void fillList() throws FileNotFoundException {
-        readerBuf = new ArrayList<>();
-        writerBuf = new ArrayList<>();
-        ArrayList<Plane> planes = new ArrayList<>();
+        readerBuf = new HashSet<>();
+        writerBuf = new HashSet<>();
+        HashSet<Plane> planes = new HashSet<>();
         String path = UDPHandler.class.getResource("northboundloop.txt").toString();
         path = path.substring(6, path.length());
         FileInputStream fileInput = new FileInputStream(path);

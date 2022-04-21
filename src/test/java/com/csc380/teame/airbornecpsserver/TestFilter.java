@@ -10,7 +10,7 @@ import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Scanner;
 
 public class TestFilter {
@@ -20,7 +20,7 @@ public class TestFilter {
 
         try {
             URL classpath = TestFilter.class.getResource("northboundloop.txt");
-            ArrayList<Plane> TestPlanes = new ArrayList<>();
+            HashSet<Plane> TestPlanes = new HashSet<>();
             File file = new File(classpath.toURI());
             String absolutePath = file.getAbsolutePath();
             int count = 0;
@@ -34,7 +34,7 @@ public class TestFilter {
                 while (in.hasNextLine() && count++ < 10) {
                     TestPlanes.add(new Plane(in.nextLine()));
                 }
-                ArrayList<Plane> newList = udpf.checkDups(TestPlanes);
+                HashSet<Plane> newList = udpf.checkDups(TestPlanes);
                 assertTrue(newList.size() == 1);
             } catch (FileNotFoundException e) {
                 // TODO Auto-generated catch block

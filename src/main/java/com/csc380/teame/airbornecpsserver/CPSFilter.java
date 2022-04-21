@@ -1,6 +1,6 @@
 package com.csc380.teame.airbornecpsserver;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -12,10 +12,10 @@ import java.util.HashSet;
 
 public class CPSFilter {
 
-    ArrayList<Plane> list;
+    HashSet<Plane> list;
     HashSet<Plane> hashList = new HashSet<>();
     HashMap<Plane, Plane> Hmap = new HashMap<>();
-    public CPSFilter(ArrayList<Plane> currentList) {
+    public CPSFilter(HashSet<Plane> currentList) {
         this.list = currentList;
         this.Hmap = new HashMap<>();
         for(Plane plane : currentList){
@@ -23,7 +23,7 @@ public class CPSFilter {
         }
     }
 
-    public ArrayList<Plane> checkDups(ArrayList<Plane> ArrivalList){
+    public HashSet<Plane> checkDups(HashSet<Plane> ArrivalList){
 
         //1. dump everything new into hashmap: check dups instantly.
         //By default, the last to trasverse will be the "Newest One";
@@ -46,12 +46,12 @@ public class CPSFilter {
                 Hmap.put(p,p);
             }
         }
-        return new ArrayList<Plane>(Hmap.values());
+        return new HashSet<Plane>(Hmap.values());
     }
 
     //check current list for duplicate entries
-//    public ArrayList<Plane> checkForDuplicates(ArrayList<Plane> currentList) {
-//        ArrayList<Plane> newList = new ArrayList<>();
+//    public HashSet<Plane> checkForDuplicates(HashSet<Plane> currentList) {
+//        HashSet<Plane> newList = new HashSet<>();
 //        for (int i = 0; i < currentList.size(); i++) {
 //            Plane currentPlane = currentList.get(i);
 //            String currentMacAddr = currentPlane.mac;
@@ -70,7 +70,7 @@ public class CPSFilter {
 //    }
 
     //only return planes within a certain distance from current player
-    public ArrayList<Plane> getLocalPlaneList(ArrayList<Plane> currentList) {
+    public HashSet<Plane> getLocalPlaneList(HashSet<Plane> currentList) {
         return currentList;
     }
 }

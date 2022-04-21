@@ -3,7 +3,7 @@ package com.csc380.teame.airbornecpsserver;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 
@@ -16,7 +16,7 @@ public class Server {
     Object rlock = new Object(), wlock = new Object();
     TCPHandler clientSock;
 
-    public void setTCPList(ArrayList<Plane>list){
+    public void setTCPList(HashSet<Plane>list){
         TCPHandler.updateSenderBuffer(list);
     }
 
