@@ -146,10 +146,9 @@ public class ServerController {
                 int count = 0;
                 OpenSkyStates os = api.getStates(0, null, bbox);
                 for (StateVector sv : os.getStates()) {
-                    if (count <= 100) {
-                        if (sv.getHeading() != null && sv.getHeading() != 0) {
+                    if (count++ <= 100) {
+                        if (sv.getHeading() != null && sv.getHeading() != 0 && sv.getVelocity() >= 100) {
                             list.add(new Plane(sv));
-                            count++;
                         }
                     } else {
                         break;
@@ -161,8 +160,8 @@ public class ServerController {
                 long t2 = System.currentTimeMillis();
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
                 LocalDateTime now = LocalDateTime.now();
-                System.out.print(dtf.format(now));
-                logger.info(" ADSB update took: " + (t2 - t1) + " ms " + bbox.getMinLatitude() + "°N " + bbox.getMaxLatitude()+ "°N " +bbox.getMinLongitude()+ "°E " +bbox.getMaxLongitude() + "°E");
+                //System.out.print(dtf.format(now));
+                logger.info("ADSB update took: " + (t2 - t1) + " ms " + bbox.getMinLatitude() + "°N " + bbox.getMaxLatitude()+ "°N " +bbox.getMinLongitude()+ "°E " +bbox.getMaxLongitude() + "°E");
                 if (list.size() > 0) {
                     this.ListADSB = list;
                 }

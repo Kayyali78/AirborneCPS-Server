@@ -295,22 +295,37 @@ public class GUIController implements Initializable {
 
             long t1 = System.currentTimeMillis();
 
-            // ObservableList<Plane> observableHashSetTCP = FXCollections
-            //         .observableHashSet(controller.getTCPList());
-            // ListTCP.setItems(observableHashSetTCP);
-            // ListTCP.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-            // ObservableList<Plane> observableHashSetADSB = FXCollections
-            //         .observableHashSet(controller.getADSBList());
-            // ListADSB.setItems(observableHashSetADSB);
-            // ListADSB.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-            // toMarkers();
-            // map.clearMarkers();
-            // map.addMarkers(markers);
-            // long t2 = System.currentTimeMillis();
-            // DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-            // LocalDateTime now = LocalDateTime.now();
-            // System.out.print(dtf.format(now));
-            // logger.info(Thread.currentThread().getName() + " ADSB update took: " + (t2 - t1) + " ms");
+            //udp section
+            HashSet<Plane> udptemp = controller.getUDPList();
+            logger.info("Getting udplist from controller");
+            logger.info("UDPlist size " + udptemp.size());
+            ObservableList<Plane> observableListUDP = FXCollections
+                    .observableList(new ArrayList<Plane>(udptemp));
+            ListUDP.setItems(observableListUDP);
+            ListUDP.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+            
+            //tcp section
+            HashSet<Plane> tcptemp = new HashSet<>();
+            logger.info("Getting tcplist from controller");
+            tcptemp = controller.getTCPList();
+            logger.info("TCPlist size " + tcptemp.size());
+            ObservableList<Plane> observableHashSetTCP = FXCollections
+                    .observableList(new ArrayList<Plane>(tcptemp));
+            ListTCP.setItems(observableHashSetTCP);
+            ListTCP.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+            //adsb section
+            HashSet<Plane> adsbtemp = new HashSet<>();
+            logger.info("Getting adsblist from controller");
+            adsbtemp = controller.getADSBList();
+            logger.info("ADSBlist size " + adsbtemp.size());
+            ObservableList<Plane> observableHashSetADSB = FXCollections
+                    .observableList(new ArrayList<Plane>(adsbtemp));
+            ListADSB.setItems(observableHashSetADSB);
+            ListADSB.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+            
+            long t2 = System.currentTimeMillis();
+            logger.info("ListView update took: " + (t2 - t1) + " ms");
 
             // updateStatus = false;
 
@@ -520,14 +535,14 @@ public class GUIController implements Initializable {
         googleMapView.setKey("AIzaSyAHBxuvQP1YzTjvx6Q2z50B0OaVkJROM70");
         googleMapView.addMapInitializedListener(this::configureMap);
         Timeline fiveSecondsWonder = new Timeline(
-                new KeyFrame(Duration.seconds(10),
+                new KeyFrame(Duration.seconds(2),
                         new EventHandler<ActionEvent>() {
 
                             @Override
                             public void handle(ActionEvent event) {
                                 // logger.info("this is called every 5 seconds on UI thread");
                                 // long t1 = System.currentTimeMillis();
-                                // //update();
+                                update();
                                 // long t2 = System.currentTimeMillis();
                                 // DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
                                 // LocalDateTime now = LocalDateTime.now();
@@ -537,12 +552,13 @@ public class GUIController implements Initializable {
                             }
                         }));
         fiveSecondsWonder.setCycleCount(Timeline.INDEFINITE);
-        // fiveSecondsWonder.play();
+        fiveSecondsWonder.play();
 
         new Thread() {
 
             // runnable for that thread
             public void run() {
+                setName("GUI Backgroundupdate");
                 while (true) {
                     try {
                         // imitating work
@@ -625,29 +641,25 @@ public class GUIController implements Initializable {
                         new EventHandler<ActionEvent>() {
                             @Override
                             public void handle(ActionEvent event) {
-                                HashSet<Plane> udptemp = new HashSet<>();
-                                logger.info("Getting udplist from controller");
-                                udptemp = controller.getUDPList();
-                                logger.info("UDPlist size " + udptemp.size());
-                                ObservableList<Plane> observableListUDP = FXCollections
-                                        .observableList(new ArrayList<Plane>(udptemp));
-                                ListUDP.setItems(observableListUDP);
-                                ListUDP.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+                                HashSet<Plane> udptemp = controller.getUDPwoFilter();
                                 HashSet<Marker> udpMarker = new HashSet<>();
-                                for (Plane p : udptemp) {
-                                    Marker m = toMarker(p);
-                                    //udpMarker.add(m);
-                                    markersmap.put(p,m);
-                                    // markers.add(m);
-                                    // markersmap.put(p.mac,m);
-                                }
-                                try{
-                                    Plane p = ListUDP.getSelectionModel().getSelectedItem();
-                                    if(p != null) {
-                                        markersmap.put(p,toBlueMarker(p));
+                                if (view_udp.isSelected()) {
+                                    for (Plane p : udptemp) {
+                                        Marker m = toMarker(p);
+                                        // udpMarker.add(m);
+                                        markersmap.put(p, m);
+                                        // markers.add(m);
+                                        // markersmap.put(p.mac,m);
                                     }
-                                }catch(Exception e){
-                                    e.printStackTrace();
+                                    try {
+                                        Plane p = ListUDP.getSelectionModel().getSelectedItem();
+                                        if (p != null) {
+                                            // markersmap.put(p,toBlueMarker(p));
+                                            updateLabel(p);
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                                 updateMarkers();
                             }
@@ -659,29 +671,25 @@ public class GUIController implements Initializable {
                         new EventHandler<ActionEvent>() {
                             @Override
                             public void handle(ActionEvent event) {
-                                HashSet<Plane> tcptemp = new HashSet<>();
-                                logger.info("Getting tcplist from controller");
-                                tcptemp = controller.getTCPList();
-                                logger.info("TCPlist size " + tcptemp.size());
-                                ObservableList<Plane> observableHashSetTCP = FXCollections
-                                        .observableList(new ArrayList<Plane>(tcptemp));
-                                ListTCP.setItems(observableHashSetTCP);
-                                ListTCP.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+                                HashSet<Plane> tcptemp = controller.getTCPwoFilter();
                                 HashSet<Marker> tcpMarker = new HashSet<>();
-                                for (Plane p : tcptemp) {
-                                    Marker m = toMarker(p);
-                                    // udpMarker.add(m);
-                                    markersmap.put(p, m);
-                                    // markers.add(m);
-                                    // markersmap.put(p.mac,m);
-                                }
-                                try {
-                                    Plane p = ListTCP.getSelectionModel().getSelectedItem();
-                                    if (p != null) {
-                                        markersmap.put(p, toBlueMarker(p));
+                                if (view_tcp.isSelected()) {
+                                    for (Plane p : tcptemp) {
+                                        Marker m = toMarker(p);
+                                        // udpMarker.add(m);
+                                        markersmap.put(p, m);
+                                        // markers.add(m);
+                                        // markersmap.put(p.mac,m);
                                     }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                                    try {
+                                        Plane p = ListTCP.getSelectionModel().getSelectedItem();
+                                        if (p != null) {
+                                            // markersmap.put(p, toBlueMarker(p));
+                                            updateLabel(p);
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                                 updateMarkers();
                             }
@@ -692,29 +700,25 @@ public class GUIController implements Initializable {
                         new EventHandler<ActionEvent>() {
                             @Override
                             public void handle(ActionEvent event) {
-                                HashSet<Plane> adsbtemp = new HashSet<>();
-                                logger.info("Getting adsblist from controller");
-                                adsbtemp = controller.getADSBList();
-                                logger.info("ADSBlist size " + adsbtemp.size());
-                                ObservableList<Plane> observableHashSetADSB = FXCollections
-                                        .observableList(new ArrayList<Plane>(adsbtemp));
-                                ListADSB.setItems(observableHashSetADSB);
-                                ListADSB.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+                                HashSet<Plane> adsbtemp = controller.getADSBList();
                                 HashSet<Marker> adsbMarker = new HashSet<>();
-                                for (Plane p : adsbtemp) {
-                                    Marker m = toMarker(p);
-                                    // udpMarker.add(m);
-                                    markersmap.put(p, m);
-                                    // markers.add(m);
-                                    // markersmap.put(p.mac,m);
-                                }
-                                try {
-                                    Plane p = ListADSB.getSelectionModel().getSelectedItem();
-                                    if (p != null) {
-                                        markersmap.put(p, toBlueMarker(p));
+                                if (view_adsb.isSelected()) {
+                                    for (Plane p : adsbtemp) {
+                                        Marker m = toMarker(p);
+                                        // udpMarker.add(m);
+                                        markersmap.put(p, m);
+                                        // markers.add(m);
+                                        // markersmap.put(p.mac,m);
                                     }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                                    try {
+                                        Plane p = ListADSB.getSelectionModel().getSelectedItem();
+                                        if (p != null) {
+                                            // markersmap.put(p, toBlueMarker(p));
+                                            updateLabel(p);
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                                 
                                 updateMarkers();
@@ -780,16 +784,5 @@ public class GUIController implements Initializable {
         update();
     }
 
-    public class CustomOutputStream extends OutputStream {
-        private TextArea terminal;
-
-        public CustomOutputStream(TextArea terminal) {
-            this.terminal = terminal;
-        }
-
-        @Override
-        public void write(int b) throws IOException {
-            terminal.setText(terminal.getText() + String.valueOf((char) b));
-        }
-    }
+    
 }
