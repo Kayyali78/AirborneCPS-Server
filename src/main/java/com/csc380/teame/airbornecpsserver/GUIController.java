@@ -548,6 +548,7 @@ public class GUIController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        updateBbox();
         logger.info("GUIController Initializing");
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
             // show alert to user
@@ -568,7 +569,7 @@ public class GUIController implements Initializable {
         googleMapView.setKey("AIzaSyAHBxuvQP1YzTjvx6Q2z50B0OaVkJROM70");
         googleMapView.addMapInitializedListener(this::configureMap);
         Timeline fiveSecondsWonder = new Timeline(
-                new KeyFrame(Duration.seconds(2),
+                new KeyFrame(Duration.seconds(10),
                         new EventHandler<ActionEvent>() {
 
                             @Override
@@ -676,10 +677,11 @@ public class GUIController implements Initializable {
                                 HashSet<Plane> udptemp = controller.getUDPwoFilter();
                                 HashSet<Marker> udpMarker = new HashSet<>();
                                 if (view_udp.isSelected()) {
+                                    markersmapUDP.clear();
                                     for (Plane p : udptemp) {
                                         Marker m = toMarker(p);
                                         // udpMarker.add(m);
-                                        markersmap.put(p, m);
+                                        markersmapUDP.put(p, m);
                                         // markers.add(m);
                                         // markersmap.put(p.mac,m);
                                     }
@@ -706,10 +708,11 @@ public class GUIController implements Initializable {
                                 HashSet<Plane> tcptemp = controller.getTCPwoFilter();
                                 HashSet<Marker> tcpMarker = new HashSet<>();
                                 if (view_tcp.isSelected()) {
+                                    markersmapTCP.clear();
                                     for (Plane p : tcptemp) {
                                         Marker m = toMarker(p);
                                         // udpMarker.add(m);
-                                        markersmap.put(p, m);
+                                        markersmapTCP.put(p, m);
                                         // markers.add(m);
                                         // markersmap.put(p.mac,m);
                                     }
@@ -728,17 +731,18 @@ public class GUIController implements Initializable {
                         }));
         fiveSecondsTCP.setCycleCount(Timeline.INDEFINITE);
         Timeline fiveSecondsADSB = new Timeline(
-                new KeyFrame(Duration.seconds(10),
+                new KeyFrame(Duration.seconds(5),
                         new EventHandler<ActionEvent>() {
                             @Override
                             public void handle(ActionEvent event) {
                                 HashSet<Plane> adsbtemp = controller.getADSBList();
                                 HashSet<Marker> adsbMarker = new HashSet<>();
                                 if (view_adsb.isSelected()) {
+                                    markersmapADSB.clear();
                                     for (Plane p : adsbtemp) {
                                         Marker m = toMarker(p);
                                         // udpMarker.add(m);
-                                        markersmap.put(p, m);
+                                        markersmapADSB.put(p, m);
                                         // markers.add(m);
                                         // markersmap.put(p.mac,m);
                                     }
@@ -777,11 +781,11 @@ public class GUIController implements Initializable {
                             fiveSecondsTCP.stop();
                             fiveSecondsUDP.play();
                         }
-
                         logger.info("Tab Selection changed to " + t1.toString());
                     }
                 });
-
+        //default to ADSB markers update at startup
+        fiveSecondsADSB.play();  
     }
 
     protected void configureMap() {
@@ -813,12 +817,14 @@ public class GUIController implements Initializable {
     }
 
     public void updateBbox(ActionEvent actionEvent) {
+        updateBbox();
+    }
+    public void updateBbox(){
         double mnLat = Double.parseDouble(minLat.getText());
         double mnLon = Double.parseDouble(minLon.getText());
         double mxLat = Double.parseDouble(maxLat.getText());
         double mxLon = Double.parseDouble(maxLon.getText());
-        bbox = new BoundingBox(mnLat, mxLat, mnLon,mxLon);
-        //update();
+        bbox = new BoundingBox(mnLat, mxLat, mnLon, mxLon);
     }
 
     
