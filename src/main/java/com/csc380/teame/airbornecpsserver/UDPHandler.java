@@ -194,8 +194,11 @@ public class UDPHandler {
                             synchronized (senderBuffer) {
                                 for (Plane p : senderBuffer) {
                                     if(getName().equals("UDPInjector")){
-                                        logger.info("UDP broad : {}", p.getBeacon());
+                                        logger.info("UDP Inject : {}", p.getBeacon());
+                                    }else{
+                                        logger.debug("UDP broad : {}",p.getBeacon());
                                     }
+                        
                                     byte[] buf = p.getBeacon().getBytes(StandardCharsets.UTF_8);
                                     
                                     DatagramPacket sendpkt = new DatagramPacket(buf, buf.length,
