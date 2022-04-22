@@ -3,9 +3,10 @@ package com.csc380.teame.airbornecpsserver;
 import java.io.*;
 import java.lang.reflect.Array;
 import java.net.*;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 import static java.lang.Thread.sleep;
 
@@ -15,24 +16,57 @@ public class TCPHandler implements Runnable{
     private final static String helptext = "Syntax: java -jar tcpbeacons.jar (-server PORT? FILENAME | -client IP PORT FILENAME) slow? slow?";
     private Socket clientSocket = new Socket();
 
-    List<String> readerBuf;
-    List<Plane> writerBuf;
-    Object rlock = new Object(), wlock = new Object();
+    static HashSet<String> readerBuf = new HashSet<String>();
+    static HashSet<Plane> writerBuf = new HashSet<Plane>();
+    // Object rlock = new Object(), wlock = new Object();
 
     public TCPHandler(Socket socket) throws FileNotFoundException {
         this.clientSocket = socket;
-        fillList();
+        // fillList();
     }
 
+    private static synchronized void readtoBuffer(String str){
+        synchronized (readerBuf){
+            readerBuf.add(str);
+        }
+    }
+
+    public static synchronized HashSet<String> getReaderBuffer(){
+        synchronized (readerBuf){
+            return readerBuf;
+        }
+    }
+    public static void updateSenderBuffer(HashSet<Plane> in) {
+        try {
+            synchronized (writerBuf) {
+                writerBuf = new HashSet<>(in);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // public List<Plane> getBuffer() {
+    //     updateSenderBuffer((HashSet<Plane>) writerBuf);
+    //     return writerBuf;
+    // }
+
+    public void write(Set<Plane> arr) {
+        synchronized (writerBuf) {
+            writerBuf.addAll(arr);
+        }
+        // System.out.println("Size of writerBuf is: "+writerBuf.size());
+    }
+
+
     public void fillList() throws FileNotFoundException {
-        readerBuf = new ArrayList<>();
-        writerBuf = new ArrayList<>();
-        ArrayList<Plane> planes = new ArrayList<>();
+        readerBuf = new HashSet<>();
+        writerBuf = new HashSet<>();
+        HashSet<Plane> planes = new HashSet<>();
         String path = UDPHandler.class.getResource("northboundloop.txt").toString();
         path = path.substring(6, path.length());
         FileInputStream fileInput = new FileInputStream(path);
         Scanner s1 = new Scanner(fileInput);
-
         while (s1.hasNextLine()){
             String beacon = s1.nextLine();
             try {
@@ -68,18 +102,38 @@ public class TCPHandler implements Runnable{
         }
 
         String line = "";
-
+        long t1 = System.currentTimeMillis();
+        int counter=0;
         while (true) {
+            //timer base update
+            
             try {
-                if ((line = in.readLine()) == null) break;
-            } catch (IOException ex) {
+                if(System.currentTimeMillis() - t1 >= 1000){
+                    synchronized(writerBuf){
+                        for(Plane p:writerBuf){
+                            //out.println(p.getBeacon());
+                            System.out.println("Write to the client: " + p.getBeacon() + "\n");
+                            out.println(p.getBeacon());
+                            Thread.sleep(50);
+                        }
+                    }
+                    Thread.sleep(10);
+                    counter = 0;
+                    t1 = System.currentTimeMillis();
+                }
+                else if (counter++ < 100 && (line = in.readLine()) != null ) {
+                    //if socketbreaks, exception happen first before break.
+                    System.out.println("Sent from the client: " + line + "\n");
+                    readtoBuffer(line);
+                }
+            } catch (Exception ex) {
                 ex.printStackTrace();
+                break;
             }
-
-
-            //writing the received message from client
-            System.out.println("Sent from the client: "+line+"\n");
-            out.println(line);
+            
+            
+            //out.println(line);
+            
         }
 
     }
@@ -122,27 +176,7 @@ public class TCPHandler implements Runnable{
         }
     }
 
-    public void updateSenderBuffer(ArrayList<Plane> in){
-        try{
-            synchronized(wlock) {
-                writerBuf = new ArrayList<>(in);
-            }
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    public List<Plane> getBuffer() {
-        updateSenderBuffer((ArrayList<Plane>) writerBuf);
-        return writerBuf;
-    }
-
-    public void write(List<Plane> arr){
-        synchronized (rlock){
-            writerBuf.addAll(arr);
-        }
-        //System.out.println("Size of writerBuf is: "+writerBuf.size());
-    }
+    
 
     public static void main(String[] args){
         

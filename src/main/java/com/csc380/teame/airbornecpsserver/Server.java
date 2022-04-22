@@ -3,6 +3,7 @@ package com.csc380.teame.airbornecpsserver;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 
@@ -14,6 +15,10 @@ public class Server {
     List<Plane> writerBuf;
     Object rlock = new Object(), wlock = new Object();
     TCPHandler clientSock;
+
+    public void setTCPList(HashSet<Plane>list){
+        TCPHandler.updateSenderBuffer(list);
+    }
 
     public Server(){
         this(1901, TCPHandler.Mode.normal);

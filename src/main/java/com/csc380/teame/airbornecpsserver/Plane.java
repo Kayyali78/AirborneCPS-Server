@@ -1,6 +1,6 @@
 package com.csc380.teame.airbornecpsserver;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Objects;
 
 import org.opensky.model.StateVector;
@@ -86,8 +86,8 @@ public class Plane {
 
     }
 
-    public static ArrayList<Plane> getExamplePlanes() {
-        ArrayList<Plane> result = new ArrayList<Plane>();
+    public static HashSet<Plane> getExamplePlanes() {
+        HashSet<Plane> result = new HashSet<Plane>();
         result.add(new Plane("n00:00:00:59:53:2En192.168.0.2n47.519961n10.698863n3050.078383"));
         //result.add(new Plane("n4C:ED:FB:3C:D3:7bn192.168.2.50n47.496872n10.668766n3164.002499"));
         return result;
