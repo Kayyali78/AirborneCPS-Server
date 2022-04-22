@@ -120,9 +120,10 @@ public class Plane {
 
     /**
      * @provides String in CPS becon format
+     * @TODO: fix every ica024 or callsign with 'n' into 'N'
      */
     public String getBeacon() {
-        return "n" + mac + "n" + ip + "n" + lat + "n" + lon + "n" + alt;
+        return "n" + mac.replaceAll("n", "N") + "n" + ip.replaceAll("n", "N") + "n" + lat + "n" + lon + "n" + alt;
     }
 
     public static void main(String[] args) {
