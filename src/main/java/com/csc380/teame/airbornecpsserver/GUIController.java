@@ -17,6 +17,8 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.status.StatusData;
+import org.opensky.api.OpenSkyApi.BoundingBox;
+
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
@@ -64,6 +66,7 @@ import javafx.collections.ObservableSet;
 
 public class GUIController implements Initializable {
     private static final Logger logger = LogManager.getLogger(GUIController.class);
+    BoundingBox bbox = new BoundingBox(30.8389, 50.8229, -100.9962, -40.5226);
 
     @FXML
     private Label ICAOLabel;
@@ -129,6 +132,18 @@ public class GUIController implements Initializable {
     private Label longitudeLabel;
 
     @FXML
+    private TextField maxLat;
+
+    @FXML
+    private TextField maxLon;
+
+    @FXML
+    private TextField minLat;
+
+    @FXML
+    private TextField minLon;
+
+    @FXML
     private Label planedetail;
 
     @FXML
@@ -154,6 +169,9 @@ public class GUIController implements Initializable {
     private static boolean updateStatus = false;
     protected HashSet<Marker> markers = new HashSet<Marker>();
     protected HashMap<Plane, Marker> markersmap = new HashMap<Plane, Marker>();
+    protected HashMap<Plane, Marker> markersmapADSB = new HashMap<Plane, Marker>();
+    protected HashMap<Plane, Marker> markersmapTCP = new HashMap<Plane, Marker>();
+    protected HashMap<Plane, Marker> markersmapUDP = new HashMap<Plane, Marker>();
     private DecimalFormat formatter = new DecimalFormat("###.00000");
     // private HashSet<Marker> ADSBMarker = new HashSet<>();
     // private HashSet<Marker> TCPMarker = new HashSet<>();
@@ -243,9 +261,12 @@ public class GUIController implements Initializable {
     void adsbclicked(MouseEvent event) {
         Plane p = ListADSB.getSelectionModel().getSelectedItem();
         updateLabel(p);
-        //mapmarkers.put(
-        map.removeMarker(markersmap.get(p));
-        map.addMarker(toBlueMarker(p));
+        map.setCenter(new LatLong(p.lat, p.lon));
+        logger.info("Clicked on Plane {}",p);
+        updateMarkers();
+        // mapmarkers.put(
+        // map.removeMarker(markersmap.get(p));
+        // map.addMarker(toBlueMarker(p));
         selectedPlaneHistory = p;
         Task<HashSet<Plane>> gethistoryOpen = new Task<HashSet<Plane>>() {
             @Override
@@ -283,18 +304,22 @@ public class GUIController implements Initializable {
     void tcpclicked(MouseEvent event) {
         Plane p = ListTCP.getSelectionModel().getSelectedItem();
         updateLabel(p);
+        map.setCenter(new LatLong(p.lat, p.lon));
+        logger.info("Clicked on Plane {}", p);
+        updateMarkers();
     }
 
     @FXML
     void udpclicked(MouseEvent event) {
         Plane p = ListUDP.getSelectionModel().getSelectedItem();
         updateLabel(p);
+        map.setCenter(new LatLong(p.lat, p.lon));
+        logger.info("Clicked on Plane {}", p);
+        updateMarkers();
     }
     public void update() {
         synchronized (lock) {
-
             long t1 = System.currentTimeMillis();
-
             //udp section
             HashSet<Plane> udptemp = controller.getUDPList();
             logger.info("Getting udplist from controller");
@@ -333,7 +358,7 @@ public class GUIController implements Initializable {
     }
 
     public void backgroundupdate() {
-        controller.getOpensky();
+        controller.getOpensky(bbox);
         updateStatus = true;
     }
 
@@ -369,55 +394,55 @@ public class GUIController implements Initializable {
 
     }
 
-    public void toMarkers() {
-        //ADSBMarker = new HashSet<>();
-        // markersmap = new HashMap<Plane, Marker>();
-        // markersmap.clear();
-        // MarkerOptions options = new MarkerOptions();
+    // public void toMarkers() {
+    //     //ADSBMarker = new HashSet<>();
+    //     // markersmap = new HashMap<Plane, Marker>();
+    //     // markersmap.clear();
+    //     // MarkerOptions options = new MarkerOptions();
 
-        for (Plane p : ListADSB.getItems()) {
-            MarkerOptionsAlt options = new MarkerOptionsAlt();
-            options.rotation((int) p.heading);
-            if (p.heading <= (11.25) || p.heading >= (348.75)) {
-                options.icon(Plane0);
-            } else if (p.heading <= (348.75) && p.heading >= (326.25)) {
-                options.icon(Plane337_5);
-            } else if (p.heading <= (326.25) && p.heading >= (303.75)) {
-                options.icon(Plane315);
-            } else if (p.heading <= (303.75) && p.heading >= (281.25)) {
-                options.icon(Plane292_5);
-            } else if (p.heading <= (281.25) && p.heading >= (258.75)) {
-                options.icon(Plane270);
-            } else if (p.heading <= (258.75) && p.heading >= (236.25)) {
-                options.icon(Plane247_5);
-            } else if (p.heading <= (236.25) && p.heading >= (213.75)) {
-                options.icon(Plane225);
-            } else if (p.heading <= (213.75) && p.heading >= (191.25)) {
-                options.icon(Plane202_5);
-            } else if (p.heading <= (191.25) && p.heading >= (168.75)) {
-                options.icon(Plane180);
-            } else if (p.heading <= (168.75) && p.heading >= (146.25)) {
-                options.icon(Plane157_5);
-            } else if (p.heading <= (146.25) && p.heading >= (123.75)) {
-                options.icon(Plane135);
-            }else if (p.heading <= (123.75) && p.heading >= (101.25)){
-                options.icon(Plane112_5);
-            } else if (p.heading <= (101.25) && p.heading >= (78.75)) {
-                options.icon(Plane90);
-            } else if (p.heading <= (78.75) && p.heading >= (56.25)) {
-                options.icon(Plane67_5);
-            } else if (p.heading <= (56.25) && p.heading >= (33.75)) {
-                options.icon(Plane45);
-            } else if (p.heading <= (33.75) && p.heading >= (11.25)) {
-                options.icon(Plane22_5);
-            }
-            options.position(new LatLong(p.lat, p.lon));
-            Marker marker = new Marker(options);
-            //ADSBMarker.add(marker);
-            markersmap.put(p, marker);
-        }
+    //     for (Plane p : ListADSB.getItems()) {
+    //         MarkerOptionsAlt options = new MarkerOptionsAlt();
+    //         options.rotation((int) p.heading);
+    //         if (p.heading <= (11.25) || p.heading >= (348.75)) {
+    //             options.icon(Plane0);
+    //         } else if (p.heading <= (348.75) && p.heading >= (326.25)) {
+    //             options.icon(Plane337_5);
+    //         } else if (p.heading <= (326.25) && p.heading >= (303.75)) {
+    //             options.icon(Plane315);
+    //         } else if (p.heading <= (303.75) && p.heading >= (281.25)) {
+    //             options.icon(Plane292_5);
+    //         } else if (p.heading <= (281.25) && p.heading >= (258.75)) {
+    //             options.icon(Plane270);
+    //         } else if (p.heading <= (258.75) && p.heading >= (236.25)) {
+    //             options.icon(Plane247_5);
+    //         } else if (p.heading <= (236.25) && p.heading >= (213.75)) {
+    //             options.icon(Plane225);
+    //         } else if (p.heading <= (213.75) && p.heading >= (191.25)) {
+    //             options.icon(Plane202_5);
+    //         } else if (p.heading <= (191.25) && p.heading >= (168.75)) {
+    //             options.icon(Plane180);
+    //         } else if (p.heading <= (168.75) && p.heading >= (146.25)) {
+    //             options.icon(Plane157_5);
+    //         } else if (p.heading <= (146.25) && p.heading >= (123.75)) {
+    //             options.icon(Plane135);
+    //         }else if (p.heading <= (123.75) && p.heading >= (101.25)){
+    //             options.icon(Plane112_5);
+    //         } else if (p.heading <= (101.25) && p.heading >= (78.75)) {
+    //             options.icon(Plane90);
+    //         } else if (p.heading <= (78.75) && p.heading >= (56.25)) {
+    //             options.icon(Plane67_5);
+    //         } else if (p.heading <= (56.25) && p.heading >= (33.75)) {
+    //             options.icon(Plane45);
+    //         } else if (p.heading <= (33.75) && p.heading >= (11.25)) {
+    //             options.icon(Plane22_5);
+    //         }
+    //         options.position(new LatLong(p.lat, p.lon));
+    //         Marker marker = new Marker(options);
+    //         //ADSBMarker.add(marker);
+    //         markersmap.put(p, marker);
+    //     }
 
-    }
+    // }
 
     public void updateMarkers(){ 
         markers.clear();
@@ -425,7 +450,16 @@ public class GUIController implements Initializable {
         // markers.addAll(UDPMarker);
         // markers.addAll(TCPMarker);
         map.clearMarkers();
-        map.addMarkers(markersmap.values());
+        if(view_adsb.isSelected()){
+            markers.addAll(markersmapADSB.values());
+        }
+        if(view_tcp.isSelected()){
+            markers.addAll(markersmapTCP.values());
+        }
+        if(view_udp.isSelected()){
+            markers.addAll(markersmapUDP.values());
+        }
+        map.addMarkers(markers);
     }
 
     public Marker toMarker(Plane p) {
@@ -491,7 +525,6 @@ public class GUIController implements Initializable {
         ICAOLabel.setText(p.mac);
         callLabel.setText(p.ip);
         headingLabel.setText(formatter.format(p.heading));
-        map.setCenter(new LatLong(p.lat, p.lon));
         speedLabel.setText(formatter.format(p.speed));
     }
 
@@ -584,58 +617,57 @@ public class GUIController implements Initializable {
             }
         }.start();
 
-        // view_adsb.selectedProperty().addListener(new ChangeListener<Boolean>() {
-        //     @Override
-        //     public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-        //         // view_adsb.setSelected(!newValue);
+        view_adsb.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                // view_adsb.setSelected(!newValue);
 
-        //         // fire command to javafx thread
-        //         synchronized (lock) {
-        //             if (newValue) {
-        //                 update();
-        //             } else if (oldValue) {
-        //                 map.clearMarkers();
+                // fire command to javafx thread
+                synchronized (lock) {
+                    if(!view_adsb.isSelected()){
+                        markersmapADSB.clear();
+                        logger.info("ADSBMarker cleaned");
+                    }else{
+                        update();
+                        logger.info("Triggered Update by adsbcheckbox");
+                    }
+                }
+            }
+        });
+        view_tcp.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                // view_adsb.setSelected(!newValue);
 
-        //             }
-        //             logger.info(observable);
+                // fire command to javafx thread
+                synchronized (lock) {
+                    if (!view_tcp.isSelected()) {
+                        markersmapTCP.clear();
+                        logger.info("TCPMarker cleaned");
+                    }else{
+                        update();
+                        logger.info("Triggered Update by tcpcheckbox");
+                    }
+                }
+            }
+        });
+        view_udp.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                // view_adsb.setSelected(!newValue);
 
-        //         }
-        //     }
-        // });
-        // view_tcp.selectedProperty().addListener(new ChangeListener<Boolean>() {
-        //     @Override
-        //     public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-        //         // view_adsb.setSelected(!newValue);
-
-        //         // fire command to javafx thread
-        //         synchronized (lock) {
-        //             if (newValue) {
-        //                 update();
-        //             } else if (oldValue) {
-        //                 map.clearMarkers();
-        //             }
-        //             logger.info(observable);
-        //         }
-        //     }
-        // });
-        // view_udp.selectedProperty().addListener(new ChangeListener<Boolean>() {
-        //     @Override
-        //     public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-        //         // view_adsb.setSelected(!newValue);
-
-        //         // fire command to javafx thread
-        //         synchronized (lock) {
-        //             if (newValue) {
-        //                 update();
-        //             } else if (oldValue) {
-        //                 map.clearMarkers();
-
-        //             }
-        //             logger.info(observable);
-
-        //         }
-        //     }
-        // });
+                // fire command to javafx thread
+                synchronized (lock) {
+                    if (!view_udp.isSelected()) {
+                        markersmapUDP.clear();
+                        logger.info("UDPMarker cleaned");
+                    } else {
+                        update();
+                        logger.info("Triggered Update by UDPcheckbox");
+                    }
+                }
+            }
+        });
         Timeline fiveSecondsUDP = new Timeline(
                 new KeyFrame(Duration.seconds(5),
                         new EventHandler<ActionEvent>() {
@@ -696,7 +728,7 @@ public class GUIController implements Initializable {
                         }));
         fiveSecondsTCP.setCycleCount(Timeline.INDEFINITE);
         Timeline fiveSecondsADSB = new Timeline(
-                new KeyFrame(Duration.seconds(5),
+                new KeyFrame(Duration.seconds(10),
                         new EventHandler<ActionEvent>() {
                             @Override
                             public void handle(ActionEvent event) {
@@ -781,7 +813,12 @@ public class GUIController implements Initializable {
     }
 
     public void updateBbox(ActionEvent actionEvent) {
-        update();
+        double mnLat = Double.parseDouble(minLat.getText());
+        double mnLon = Double.parseDouble(minLon.getText());
+        double mxLat = Double.parseDouble(maxLat.getText());
+        double mxLon = Double.parseDouble(maxLon.getText());
+        bbox = new BoundingBox(mnLat, mxLat, mnLon,mxLon);
+        //update();
     }
 
     

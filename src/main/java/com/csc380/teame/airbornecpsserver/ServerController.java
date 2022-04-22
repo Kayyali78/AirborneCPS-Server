@@ -146,8 +146,8 @@ public class ServerController {
                 int count = 0;
                 OpenSkyStates os = api.getStates(0, null, bbox);
                 for (StateVector sv : os.getStates()) {
-                    if (count++ <= 100) {
-                        if (sv.getHeading() != null && sv.getHeading() != 0 && sv.getVelocity() >= 100) {
+                    if (count++ <= 50) {
+                        if (sv.getHeading() != null && sv.getHeading() != 0 && sv.getVelocity() >= 10 && !(sv.getIcao24() == null || sv.getIcao24().length() == 0) && !(sv.getCallsign() == null || sv.getCallsign().length() == 0)) {
                             list.add(new Plane(sv));
                         }
                     } else {
