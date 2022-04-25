@@ -7,11 +7,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.status.StatusData;
 
 import static java.lang.Thread.sleep;
 
 public class TCPHandler implements Runnable{
-
+    private static final Logger logger = LogManager.getLogger(ServerController.class);
     protected enum Mode { normal, slower, slowest }
     private final static String helptext = "Syntax: java -jar tcpbeacons.jar (-server PORT? FILENAME | -client IP PORT FILENAME) slow? slow?";
     private Socket clientSocket = new Socket();
@@ -86,7 +90,7 @@ public class TCPHandler implements Runnable{
     public void run() {
         PrintWriter out = null;
         BufferedReader in = null;
-
+        String clientip = clientSocket.getRemoteSocketAddress().toString();
         //get outputstream of client
         try {
             out = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -123,7 +127,8 @@ public class TCPHandler implements Runnable{
                 }
                 else if (counter++ < 100 && (line = in.readLine()) != null ) {
                     //if socketbreaks, exception happen first before break.
-                    System.out.println("Sent from the client: " + line + "\n");
+                    //System.out.println("Sent from the client: " + line + "\n");
+                    logger.debug("Sent from {}: {}", clientip,line);
                     readtoBuffer(line);
                 }
             } catch (Exception ex) {

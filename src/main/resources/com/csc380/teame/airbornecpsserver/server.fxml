@@ -128,11 +128,11 @@
                   <CheckBox fx:id="f_udp" layoutX="36.0" layoutY="213.0" mnemonicParsing="false" text="AirborneCPS-UDP" />
                   <CheckBox fx:id="f_tcp" layoutX="37.0" layoutY="244.0" mnemonicParsing="false" text="AirborneCPS-TCP" />
                   <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="53.0" layoutX="75.0" layoutY="315.0" stroke="BLACK" strokeType="INSIDE" width="54.0" />
-                  <TextField fx:id="minLon" layoutX="3.0" layoutY="329.0" prefHeight="23.0" prefWidth="70.0" text="-124.996" />
-                  <TextField fx:id="minLat" layoutX="71.0" layoutY="371.0" prefHeight="23.0" prefWidth="62.0" text="30.8389" />
-                  <TextField fx:id="maxLat" layoutX="71.0" layoutY="290.0" prefHeight="23.0" prefWidth="62.0" text="50.8229" />
-                  <TextField fx:id="maxLon" layoutX="131.0" layoutY="329.0" prefHeight="23.0" prefWidth="58.0" text="-40.1234" />
-                  <Button fx:id="updateBbox" layoutX="131.0" layoutY="528.0" mnemonicParsing="false" onAction="#updateBbox" text="Update" />
+                  <TextField fx:id="minLon" layoutX="3.0" layoutY="329.0" prefHeight="23.0" prefWidth="70.0" text="-80.996" />
+                  <TextField fx:id="minLat" layoutX="71.0" layoutY="371.0" prefHeight="23.0" prefWidth="62.0" text="35.8389" />
+                  <TextField fx:id="maxLat" layoutX="71.0" layoutY="290.0" prefHeight="23.0" prefWidth="62.0" text="45.8229" />
+                  <TextField fx:id="maxLon" layoutX="131.0" layoutY="329.0" prefHeight="23.0" prefWidth="58.0" text="-70.1234" />
+                  <Button fx:id="updateBbox" layoutX="72.0" layoutY="527.0" mnemonicParsing="false" onAction="#updateBbox" prefHeight="23.0" prefWidth="107.0" text="Update border" />
                   <SVGPath content="M55.9,32.5c-0.7-12.1-10.4-21.7-22.4-22.4V10h-3v0.1C18.4,10.8,8.8,20.4,8.1,32.5H8v3h0.1c0.7,12.1,10.4,21.7,22.4,22.4V58h3v-0.1c12.1-0.7,21.7-10.4,22.4-22.4H56L55.9,32.5L55.9,32.5z M45.5,32.5c-0.1-2.8-0.5-5.4-1-7.9c1.8-0.6,3.5-1.3,5.1-2.2c1.9,2.9,3.1,6.4,3.4,10.1H45.5z M38.9,18.5c0.7,1.2,1.3,2.6,1.8,4c-2.3,0.5-4.7,0.8-7.2,0.9V13.3C35.4,13.9,37.4,15.7,38.9,18.5z M30.5,13.3v10.2c-2.5-0.1-4.9-0.4-7.2-0.9c0.5-1.4,1.1-2.8,1.8-4C26.6,15.7,28.6,13.9,30.5,13.3z M30.5,26.5v6h-9c0.1-2.5,0.4-4.9,0.9-7.1C25,26,27.7,26.4,30.5,26.5z M30.5,35.5v6.2c-2.8,0.1-5.5,0.4-8,1c-0.5-2.3-0.9-4.7-1-7.2H30.5z M30.5,44.7v10c-1.9-0.6-3.9-2.5-5.4-5.2c-0.7-1.2-1.2-2.5-1.7-3.9C25.6,45.1,28,44.8,30.5,44.7z M33.5,54.7v-10c2.5,0.1,4.9,0.4,7.2,0.9c-0.5,1.4-1.1,2.7-1.7,3.9C37.4,52.3,35.4,54.1,33.5,54.7z M33.5,41.7v-6.2h9c-0.1,2.5-0.4,5-1,7.2C39,42.1,36.3,41.8,33.5,41.7z M33.5,32.5v-6c2.8-0.1,5.5-0.5,8-1c0.5,2.2,0.8,4.6,0.9,7.1H33.5z M47.7,20c-1.2,0.7-2.6,1.2-4,1.7c-0.9-2.8-2.2-5.3-3.7-7.2C42.9,15.8,45.5,17.7,47.7,20z M24.1,14.6c-1.5,1.9-2.7,4.4-3.7,7.2c-1.4-0.5-2.8-1-4-1.7C18.5,17.7,21.1,15.8,24.1,14.6z M14.5,22.4c1.5,0.8,3.3,1.6,5.1,2.2c-0.6,2.4-0.9,5.1-1,7.9h-7.5C11.3,28.8,12.5,25.4,14.5,22.4z M18.5,35.5c0.1,2.8,0.5,5.5,1.1,8c-1.8,0.6-3.5,1.3-5.1,2.1c-2-2.9-3.2-6.4-3.5-10.2H18.5z M16.4,48.1c1.2-0.6,2.6-1.2,4-1.7c0.9,2.8,2.2,5.2,3.6,7C21.1,52.2,18.5,50.4,16.4,48.1z M39.9,53.4c1.5-1.9,2.7-4.3,3.6-7c1.4,0.5,2.8,1,4,1.7C45.5,50.4,42.9,52.2,39.9,53.4z M49.4,45.7c-1.5-0.8-3.2-1.5-5.1-2.1c0.6-2.5,1-5.2,1.1-8h7.5C52.7,39.2,51.4,42.7,49.4,45.7z" layoutX="70.0" layoutY="307.0" />
                   <TextField fx:id="udpPort" layoutX="102.0" layoutY="414.0" prefHeight="23.0" prefWidth="70.0" text="21221" />
                   <Label layoutX="21.0" layoutY="418.0" text="UDP Listen" />
@@ -140,7 +140,7 @@
                   <TextField fx:id="tcpServerPort" layoutX="102.0" layoutY="441.0" prefHeight="23.0" prefWidth="70.0" text="1901" />
                   <Label layoutX="21.0" layoutY="471.0" text="TCP Target" />
                   <TextField fx:id="tcpTargetPort" layoutX="102.0" layoutY="467.0" prefHeight="23.0" prefWidth="70.0" text="1901" />
-                  <Button fx:id="updateBbox1" layoutX="3.0" layoutY="528.0" mnemonicParsing="false" onAction="#resetHandler" text="Network Restart" />
+                  <Button fx:id="updateBbox1" layoutX="3.0" layoutY="528.0" mnemonicParsing="false" onAction="#resetHandler" text="Network Restart" visible="false" />
           </children>
         </AnchorPane>
         <ScrollPane fx:id="scrollpane" fitToHeight="true" fitToWidth="true" prefHeight="-1.0" prefWidth="-1.0">
@@ -213,8 +213,8 @@
                         <Label fx:id="speedLabel" alignment="CENTER_RIGHT" contentDisplay="LEFT" text="" GridPane.columnIndex="1" GridPane.rowIndex="6" />
                      </children>
                   </GridPane>
-                  <Button fx:id="refreshmap" layoutX="20.0" layoutY="515.0" mnemonicParsing="false" onAction="#r_map" text="Draw" />
-                  <Button layoutX="77.0" layoutY="515.0" mnemonicParsing="false" onAction="#tcpInjection" text="TCP Inject" />
+                  <Button fx:id="refreshmap" layoutX="20.0" layoutY="515.0" mnemonicParsing="false" onAction="#r_map" text="Draw" visible="false" />
+                  <Button layoutX="77.0" layoutY="515.0" mnemonicParsing="false" onAction="#tcpInjection" text="TCP Inject" visible="false" />
                   <Button layoutX="75.0" layoutY="492.0" mnemonicParsing="false" onAction="#udpInjection" text="UDP Inject" />
                   <TextArea fx:id="termial" layoutX="23.0" layoutY="432.0" prefHeight="53.0" prefWidth="147.0" />
           </children>
