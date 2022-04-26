@@ -50,26 +50,28 @@ public class ServerController {
         ListUDP = new HashSet<>();
         udpHandler = new UDPHandler();
         server = new Server();
+
+    }
+
+    public void startHandler(String addr){
         try {
             new Thread() {
                 @Override
                 public void run() {
                     try {
-                        udpHandler.createSocket(21221,"0.0.0.0");
+                        udpHandler.createSocket(21221,addr);
                         udpHandler.renewThread();
                         udpHandler.serve();
                         server.serve();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-
                 }
             }.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
 
     public HashSet<Plane> getUDPList() {
@@ -80,14 +82,22 @@ public class ServerController {
                 //double check if ip field is valid
                 String ip = s.split("n")[2];
                 //Matcher m = IPPattern.matcher(ip);
-                if(IPPattern.matcher(ip).matches())
+                if(IPPattern.matcher(ip).matches()){
                     temp.add(new Plane(s));
+                    logger.debug(s);
+                }
+
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         CPSFilter cpsFilter = new CPSFilter(ListUDP);
         ListUDP = cpsFilter.checkDups(temp);
+        /**
+         * @TODO Fix Issue #14
+         */
+        ListUDP.removeAll(this.getTCPwoFilter());
         return ListUDP;
         //return ListUDP;
     }

@@ -42,6 +42,8 @@ public class Plane {
     // sample input
     // n00:00:00:59:53:2En192.168.0.2n47.519961n10.698863n3050.078383
 
+
+
     Plane(String beacon) {
         message = beacon;
         String[] arr = beacon.split("n");
@@ -75,6 +77,10 @@ public class Plane {
         speed = sv.getVelocity() == null ? 0 : sv.getVelocity();
         heading = sv.getHeading() == null ? 0 : sv.getHeading();
         isADSB = true;
+    }
+
+    public static String getIP(String str){
+        return str.split("n")[2];
     }
 
     @Override

@@ -1,11 +1,16 @@
 package com.csc380.teame.airbornecpsserver;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.status.StatusData;
 
 import static java.lang.Thread.sleep;
 
@@ -15,7 +20,7 @@ public class Server {
     List<Plane> writerBuf;
     Object rlock = new Object(), wlock = new Object();
     TCPHandler clientSock;
-
+    private static final Logger logger = LogManager.getLogger(Server.class);
     public void setTCPList(HashSet<Plane>list){
         TCPHandler.updateSenderBuffer(list);
     }
@@ -39,7 +44,8 @@ public class Server {
         try {
 
             // server is listening on port 1901
-            server = new ServerSocket(1901);
+            server = new ServerSocket(19010);
+            logger.info("Server started {}",server);
             server.setReuseAddress(true);
 
             // running infinite loop for getting
@@ -79,6 +85,51 @@ public class Server {
         }
     }
 
+    public void serve(String addr,int port) throws InterruptedException {
+        ServerSocket server = null;
+
+        try {
+            // server is listening on port 1901
+            server = new ServerSocket(port,50, InetAddress.getByName(addr));
+            logger.info("Server started {}",server);
+            server.setReuseAddress(true);
+
+            // running infinite loop for getting
+            // client request
+            while (true) {
+
+                // socket object to receive incoming client
+                // requests
+                Socket client = server.accept();
+
+                // Displaying that new client is connected
+                // to server
+                System.out.println("New client connected"
+                        + client.getInetAddress()
+                        .getHostAddress());
+
+                // create a new thread object
+                clientSock = new TCPHandler(client);
+
+                // This thread will handle the client
+                // separately
+                new Thread((Runnable) clientSock).start();
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        finally {
+            if (server != null) {
+                try {
+                    server.close();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     public void serve(String file){
         try (ServerSocket serverSocket = new ServerSocket(port)) {
