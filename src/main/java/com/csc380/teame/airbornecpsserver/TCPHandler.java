@@ -143,7 +143,14 @@ public class TCPHandler implements Runnable{
                     readtoBuffer(line);
                 }
             } catch (Exception ex) {
+                
                 ex.printStackTrace();
+                logger.warn("TCP: {} DCed",this.clientHost);
+                //then we add the fake plane to static list;
+                synchronized (readerBuf){
+                    readerBuf.add("n0n" + this.clientHost + "n0n0n0");
+                    logger.warn("ADDed fake planes to delete : {}", this.clientHost);
+                }
                 break;
             }
             

@@ -138,7 +138,7 @@
                   <TextField fx:id="udpPort" layoutX="102.0" layoutY="414.0" prefHeight="23.0" prefWidth="70.0" text="21221" />
                   <Label layoutX="21.0" layoutY="418.0" text="UDP Listen" />
                   <Label layoutX="21.0" layoutY="445.0" text="TCP Listen" />
-                  <TextField fx:id="tcpServerPort" layoutX="102.0" layoutY="441.0" prefHeight="23.0" prefWidth="70.0" text="1901" />
+                  <TextField fx:id="tcpServerPort" layoutX="102.0" layoutY="441.0" prefHeight="23.0" prefWidth="70.0" text="19010" />
                   <Label layoutX="21.0" layoutY="471.0" text="TCP Target" visible="false" />
                   <TextField fx:id="tcpTargetPort" layoutX="102.0" layoutY="467.0" prefHeight="23.0" prefWidth="70.0" text="1901" visible="false" />
                   <Button fx:id="networkStart" layoutX="17.0" layoutY="527.0" mnemonicParsing="false" onAction="#resetHandler" text="Network Start" />

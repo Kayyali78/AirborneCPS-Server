@@ -39,10 +39,18 @@ public class Plane {
     boolean isTCP = false;
     String message = null;
     StateVector SV;
+    long timestamp = -1;
     // sample input
     // n00:00:00:59:53:2En192.168.0.2n47.519961n10.698863n3050.078383
-
-
+    
+    /**
+     * 
+     * @param PlanesToDelete the IP address to be removed
+     * @param flag unused param
+     */
+    public static Plane DeletePlane(String PlanesToDelete,int flag){
+        return new Plane(("n4C:ED:FB:3C:D3:7bn" + PlanesToDelete + "n0n0n0"));
+    }
 
     Plane(String beacon) {
         message = beacon;
@@ -53,6 +61,7 @@ public class Plane {
         lon = parseDouble(arr[4]);
         alt = parseDouble(arr[5]);
         speed = 0;
+        timestamp = System.currentTimeMillis();
     }
 
     Plane(String beacon, boolean _isTCP) {
@@ -65,6 +74,7 @@ public class Plane {
         alt = ParseDouble(arr[5]);
         speed = 0;
         isTCP = _isTCP;
+        timestamp = System.currentTimeMillis();
     }
 
     Plane(StateVector sv) {
@@ -77,6 +87,7 @@ public class Plane {
         speed = sv.getVelocity() == null ? 0 : sv.getVelocity();
         heading = sv.getHeading() == null ? 0 : sv.getHeading();
         isADSB = true;
+        timestamp = System.currentTimeMillis();
     }
 
     public static String getIP(String str){

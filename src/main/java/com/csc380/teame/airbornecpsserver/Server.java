@@ -58,10 +58,10 @@ public class Server {
 
                 // Displaying that new client is connected
                 // to server
-                System.out.println("New client connected"
-                        + client.getInetAddress()
-                        .getHostAddress());
-
+                // System.out.println("New client connected"
+                //         + client.getInetAddress()
+                //         .getHostAddress());
+                logger.info("New Client {}",client.getInetAddress().getHostAddress());
                 // create a new thread object
                 clientSock = new TCPHandler(client);
 
