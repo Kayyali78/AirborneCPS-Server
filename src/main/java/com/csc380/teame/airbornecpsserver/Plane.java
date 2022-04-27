@@ -90,7 +90,7 @@ public class Plane {
 
     @Override
     public int hashCode() {
-        return this.mac.hashCode();
+        return this.ip.hashCode();
     }
 
     @Override
@@ -101,7 +101,7 @@ public class Plane {
         if (obj == null || obj.getClass() != this.getClass())
             return false;
         Plane o = (Plane) obj;
-        return Objects.equals(o.mac, this.mac);
+        return Objects.equals(o.ip, this.ip);
 
     }
 
