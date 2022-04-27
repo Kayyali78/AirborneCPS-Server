@@ -258,7 +258,9 @@ public class GUIController implements Initializable {
 //        NetworkInterface ni = interfaceChoice.getSelectionModel().getSelectedItem();
 //        InetAddress ia = ni.getInetAddresses();
         String addr = interfaceChoice.getSelectionModel().getSelectedItem();
-        this.controller.startHandler(addr);
+        int up = Integer.parseInt(udpPort.getText().toString());
+        int tp = Integer.parseInt(tcpServerPort.getText().toString());
+        this.controller.startHandler(addr,up,tp);
         //this.controller.udpHandler.resetSocket(Integer.parseInt(udpPort.getText()));
     }   
 

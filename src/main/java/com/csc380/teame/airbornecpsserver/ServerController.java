@@ -53,16 +53,16 @@ public class ServerController {
 
     }
 
-    public void startHandler(String addr){
+    public void startHandler(String addr,int udpport,int tcpport){
         try {
             new Thread() {
                 @Override
                 public void run() {
                     try {
-                        udpHandler.createSocket(21221,addr);
+                        udpHandler.createSocket(udpport,addr);
                         udpHandler.renewThread();
                         udpHandler.serve();
-                        server.serve();
+                        server.serve("0.0.0.0",tcpport);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
