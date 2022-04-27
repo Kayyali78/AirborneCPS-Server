@@ -807,7 +807,7 @@ public class GUIController implements Initializable {
                                         }
                                         try {
                                             Plane p = ListUDP.getSelectionModel().getSelectedItem();
-                                            if (p != null) {
+                                            if (p != null && srcTabPane.getSelectionModel().getSelectedItem().getText().equals("UDP")) {
                                                 logger.info("Plane {} selected", p);
                                                 markersmapUDP.put(p, toGreenMarker(p));
                                                 updateLabel(p);
@@ -841,7 +841,8 @@ public class GUIController implements Initializable {
                                         }
                                         try {
                                             Plane p = ListTCP.getSelectionModel().getSelectedItem();
-                                            if (p != null) {
+                                            if (p != null && srcTabPane.getSelectionModel().getSelectedItem().getText()
+                                                    .equals("TCP")) {
                                                 logger.info("Plane {} selected", p);
                                                 markersmapTCP.put(p, toGreenMarker(p));
                                                 updateLabel(p);
@@ -874,7 +875,8 @@ public class GUIController implements Initializable {
                                         }
                                         try {
                                             Plane p = ListADSB.getSelectionModel().getSelectedItem();
-                                            if (p != null) {
+                                            if (p != null && srcTabPane.getSelectionModel().getSelectedItem().getText()
+                                                    .equals("ADSB")) {
                                                 logger.info("Plane {} selected", p);
                                                 markersmapADSB.put(p, toGreenMarker(p));
                                                 updateLabel(p);
