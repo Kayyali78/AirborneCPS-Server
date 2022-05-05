@@ -3,15 +3,15 @@ package com.csc380.teame.airbornecpsserver;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.HashSet;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.ResourceBundle;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -67,6 +67,9 @@ import javafx.collections.ObservableSet;
 public class GUIController implements Initializable {
     private static final Logger logger = LogManager.getLogger(GUIController.class);
     BoundingBox bbox = new BoundingBox(30.8389, 50.8229, -100.9962, -40.5226);
+
+    @FXML
+    private ChoiceBox<String> interfaceChoice;
 
     @FXML
     private Label ICAOLabel;
@@ -168,10 +171,13 @@ public class GUIController implements Initializable {
     private final Object ADSBlock = new Object();
     private static boolean updateStatus = false;
     protected HashSet<Marker> markers = new HashSet<Marker>();
-    protected HashMap<Plane, Marker> markersmap = new HashMap<Plane, Marker>();
-    protected HashMap<Plane, Marker> markersmapADSB = new HashMap<Plane, Marker>();
-    protected HashMap<Plane, Marker> markersmapTCP = new HashMap<Plane, Marker>();
-    protected HashMap<Plane, Marker> markersmapUDP = new HashMap<Plane, Marker>();
+    private HashMap<Plane, Marker> markersmap = new HashMap<Plane, Marker>();
+    private HashMap<Plane, Marker> unmarkersmapADSB = new HashMap<Plane, Marker>();
+    private HashMap<Plane, Marker> unmarkersmapTCP = new HashMap<Plane, Marker>();
+    private HashMap<Plane, Marker> unmarkersmapUDP = new HashMap<Plane, Marker>();
+    Map<Plane, Marker> markersmapADSB = Collections.synchronizedMap(unmarkersmapADSB);
+    Map<Plane, Marker> markersmapTCP = Collections.synchronizedMap(unmarkersmapTCP);
+    Map<Plane, Marker> markersmapUDP = Collections.synchronizedMap(unmarkersmapUDP);
     private DecimalFormat formatter = new DecimalFormat("###.00000");
     // private HashSet<Marker> ADSBMarker = new HashSet<>();
     // private HashSet<Marker> TCPMarker = new HashSet<>();
@@ -179,23 +185,38 @@ public class GUIController implements Initializable {
     public static Plane selectedPlaneHistory = null;
     public static final String iconPath = "https://i.imgur.com/23cmzJk.png";
     public static final String PlaneBlue = "https://i.imgur.com/5UoLwPH.png";
-    public static final String Plane0 = "https://i.imgur.com/VVbEWFQ.png";
-    public static final String Plane22_5 = "https://i.imgur.com/QsY95XU.png";
-    public static final String Plane45 = "https://i.imgur.com/cZHwaUF.png";
-    public static final String Plane67_5 = "https://i.imgur.com/jMF3BB6.png";
-    public static final String Plane90 = "https://i.imgur.com/UHfoEa8.png";
-    public static final String Plane112_5 = "https://i.imgur.com/ZfMRkbz.png";
-    public static final String Plane135 = "https://i.imgur.com/F4twXWO.png";
-    public static final String Plane157_5 = "https://i.imgur.com/XtsYSf3.png";
-    public static final String Plane180 = "https://i.imgur.com/SRg3wfq.png";
-    public static final String Plane202_5 = "https://i.imgur.com/TB8KGOc.png";
-    public static final String Plane225 = "https://i.imgur.com/NNmYKTp.png";
-    public static final String Plane247_5 = "https://i.imgur.com/toeMBlj.png";
-    public static final String Plane270 = "https://i.imgur.com/L2SMO2o.png";
-    public static final String Plane292_5 = "https://i.imgur.com/WA54tCM.png";
-    public static final String Plane315 = "https://i.imgur.com/ndQciWG.png";
-    public static final String Plane337_5 = "https://i.imgur.com/VPt0FtI.png";
-    
+    public static final String Plane0 = "https://i.imgur.com/X6FvkqA.png";
+    public static final String Plane22_5 = "https://i.imgur.com/J3ryS7I.png";
+    public static final String Plane45 = "https://i.imgur.com/4wdITJW.png";
+    public static final String Plane67_5 = "https://i.imgur.com/ROaQefE.png";
+    public static final String Plane90 = "https://i.imgur.com/TNIJgyz.png";
+    public static final String Plane112_5 = "https://i.imgur.com/pthJnlo.png";
+    public static final String Plane135 = "https://i.imgur.com/oK86AVC.png";
+    public static final String Plane157_5 = "https://i.imgur.com/YKlGcfs.png";
+    public static final String Plane180 = "https://i.imgur.com/ttb7op4.png";
+    public static final String Plane202_5 = "https://i.imgur.com/CkKJrB9.png";
+    public static final String Plane225 = "https://i.imgur.com/S8XBjk6.png";
+    public static final String Plane247_5 = "https://i.imgur.com/NspY9yV.png";
+    public static final String Plane270 = "https://i.imgur.com/uVOz38T.png";
+    public static final String Plane292_5 = "https://i.imgur.com/R5Bn9SP.png";
+    public static final String Plane315 = "https://i.imgur.com/KlNjwoA.png";
+    public static final String Plane337_5 = "https://i.imgur.com/V8ThahU.png";
+    public static final String GPlane0 = "https://i.imgur.com/X17Z8HH.png";
+    public static final String GPlane22_5 = "https://i.imgur.com/78NPMRY.png";
+    public static final String GPlane45 = "https://i.imgur.com/bRz6dYs.png";
+    public static final String GPlane67_5 = "https://i.imgur.com/wPNR2tp.png";
+    public static final String GPlane90 = "https://i.imgur.com/tZMqPgr.png";
+    public static final String GPlane112_5 = "https://i.imgur.com/jNtA1AZ.png";
+    public static final String GPlane135 = "https://i.imgur.com/aj9iKp0.png";
+    public static final String GPlane157_5 = "https://i.imgur.com/VcDWjXy.png";
+    public static final String GPlane180 = "https://i.imgur.com/iBSItTV.png";
+    public static final String GPlane202_5 = "https://i.imgur.com/xENE6DX.png";
+    public static final String GPlane225 = "https://i.imgur.com/rvMkLlT.png";
+    public static final String GPlane247_5 = "https://i.imgur.com/HMEsnre.png";
+    public static final String GPlane270 = "https://i.imgur.com/qOqwo1J.png";
+    public static final String GPlane292_5 = "https://i.imgur.com/gfzhP1x.png";
+    public static final String GPlane315 = "https://i.imgur.com/ges8KvU.png";
+    public static final String GPlane337_5 = "https://i.imgur.com/XuskEGA.png";
     // PipedOutputStream pout = new PipedOutputStream(this.pipeIn);
     // PrintStream printStream = new PrintStream(new CustomOutputStream(termial));
 
@@ -233,7 +254,14 @@ public class GUIController implements Initializable {
 
     @FXML
     public void resetHandler(ActionEvent event) {
-        this.controller.udpHandler.resetSocket(Integer.parseInt(udpPort.getText()));
+        //1. get interface address
+//        NetworkInterface ni = interfaceChoice.getSelectionModel().getSelectedItem();
+//        InetAddress ia = ni.getInetAddresses();
+        String addr = interfaceChoice.getSelectionModel().getSelectedItem();
+        int up = Integer.parseInt(udpPort.getText().toString());
+        int tp = Integer.parseInt(tcpServerPort.getText().toString());
+        this.controller.startHandler(addr,up,tp);
+        //this.controller.udpHandler.resetSocket(Integer.parseInt(udpPort.getText()));
     }   
 
     @FXML
@@ -332,7 +360,7 @@ public class GUIController implements Initializable {
             //tcp section
             HashSet<Plane> tcptemp = new HashSet<>();
             logger.info("Getting tcplist from controller");
-            tcptemp = controller.getTCPList();
+            tcptemp = controller.getTCPwoFilter();
             logger.info("TCPlist size " + tcptemp.size());
             ObservableList<Plane> observableHashSetTCP = FXCollections
                     .observableList(new ArrayList<Plane>(tcptemp));
@@ -356,9 +384,19 @@ public class GUIController implements Initializable {
 
         }
     }
+    public void ADSBbackgroundupdate(){
+        controller.getOpensky(bbox);
+    }
 
     public void backgroundupdate() {
-        controller.getOpensky(bbox);
+        synchronized(lock){
+            controller.getTCPList();
+            controller.getUDPList();
+        }
+        
+        Platform.runLater(()->{
+            update();
+        });
         updateStatus = true;
     }
 
@@ -451,13 +489,21 @@ public class GUIController implements Initializable {
         // markers.addAll(TCPMarker);
         map.clearMarkers();
         if(view_adsb.isSelected()){
-            markers.addAll(markersmapADSB.values());
+            synchronized(markersmapADSB){
+                markers.addAll(markersmapADSB.values());
+            }
+            
         }
         if(view_tcp.isSelected()){
-            markers.addAll(markersmapTCP.values());
+            synchronized(markersmapTCP){
+                markers.addAll(markersmapTCP.values());
+            }
+            
         }
         if(view_udp.isSelected()){
-            markers.addAll(markersmapUDP.values());
+            synchronized(markersmapUDP){
+                markers.addAll(markersmapUDP.values());
+            }
         }
         map.addMarkers(markers);
     }
@@ -502,9 +548,43 @@ public class GUIController implements Initializable {
         return new Marker(options);
     }
 
-    public Marker toBlueMarker(Plane p) {
+    public Marker toGreenMarker(Plane p) {
         MarkerOptionsAlt options = new MarkerOptionsAlt();
-        options.rotation("[" + String.valueOf(p.heading) + "]").icon(PlaneBlue).position(new LatLong(p.lat, p.lon));
+        options.rotation((int) p.heading);
+        if (p.heading <= (11.25) || p.heading >= (348.75)) {
+            options.icon(GPlane0);
+        } else if (p.heading <= (348.75) && p.heading >= (326.25)) {
+            options.icon(GPlane337_5);
+        } else if (p.heading <= (326.25) && p.heading >= (303.75)) {
+            options.icon(GPlane315);
+        } else if (p.heading <= (303.75) && p.heading >= (281.25)) {
+            options.icon(GPlane292_5);
+        } else if (p.heading <= (281.25) && p.heading >= (258.75)) {
+            options.icon(GPlane270);
+        } else if (p.heading <= (258.75) && p.heading >= (236.25)) {
+            options.icon(GPlane247_5);
+        } else if (p.heading <= (236.25) && p.heading >= (213.75)) {
+            options.icon(GPlane225);
+        } else if (p.heading <= (213.75) && p.heading >= (191.25)) {
+            options.icon(GPlane202_5);
+        } else if (p.heading <= (191.25) && p.heading >= (168.75)) {
+            options.icon(GPlane180);
+        } else if (p.heading <= (168.75) && p.heading >= (146.25)) {
+            options.icon(GPlane157_5);
+        } else if (p.heading <= (146.25) && p.heading >= (123.75)) {
+            options.icon(GPlane135);
+        } else if (p.heading <= (123.75) && p.heading >= (101.25)) {
+            options.icon(GPlane112_5);
+        } else if (p.heading <= (101.25) && p.heading >= (78.75)) {
+            options.icon(GPlane90);
+        } else if (p.heading <= (78.75) && p.heading >= (56.25)) {
+            options.icon(GPlane67_5);
+        } else if (p.heading <= (56.25) && p.heading >= (33.75)) {
+            options.icon(GPlane45);
+        } else if (p.heading <= (33.75) && p.heading >= (11.25)) {
+            options.icon(GPlane22_5);
+        }
+        options.position(new LatLong(p.lat, p.lon));
         return new Marker(options);
     }
 
@@ -518,7 +598,6 @@ public class GUIController implements Initializable {
      * 2.setCenter
      */
     public void updateLabel(Plane p) {
-
         latitudeLabel.setText(formatter.format(p.lat));
         longitudeLabel.setText(formatter.format(p.lon));
         altitudeLabel.setText(formatter.format(p.alt));
@@ -537,17 +616,31 @@ public class GUIController implements Initializable {
         if(f_tcp.isSelected()){
             totcp.addAll(controller.getTCPwoFilter());
             toudp.addAll(controller.getTCPwoFilter());
-        }
+        }   
         if(f_opensky.isSelected()){
             totcp.addAll(controller.getADSBList());
             toudp.addAll(controller.getADSBList());
         }
         controller.setUDPList(toudp);
         controller.setTCPList(totcp);
+        logger.info("SenderList updated");
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        try {
+            ArrayList<String>AddressList = new ArrayList<>();
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+                NetworkInterface intf = en.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
+                    AddressList.add(enumIpAddr.nextElement().toString());
+                }
+            }
+//            interfaceChoice.setItems(FXCollections.observableArrayList(Collections.list(NetworkInterface.getNetworkInterfaces())));
+            interfaceChoice.setItems(FXCollections.observableArrayList(AddressList));
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
         updateBbox();
         logger.info("GUIController Initializing");
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
@@ -576,7 +669,7 @@ public class GUIController implements Initializable {
                             public void handle(ActionEvent event) {
                                 // logger.info("this is called every 5 seconds on UI thread");
                                 // long t1 = System.currentTimeMillis();
-                                update();
+                                //update();
                                 // long t2 = System.currentTimeMillis();
                                 // DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
                                 // LocalDateTime now = LocalDateTime.now();
@@ -586,27 +679,27 @@ public class GUIController implements Initializable {
                             }
                         }));
         fiveSecondsWonder.setCycleCount(Timeline.INDEFINITE);
-        fiveSecondsWonder.play();
+        // fiveSecondsWonder.play();
 
         new Thread() {
 
             // runnable for that thread
             public void run() {
-                setName("GUI Backgroundupdate");
+                setName("ADSBupdate");
                 while (true) {
                     try {
                         // imitating work
                         synchronized (ADSBlock) {
-                            backgroundupdate();
+                            ADSBbackgroundupdate();
                         }
-                        relayTransmission();
+                        
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     } finally {
                         try {
-                            logger.log(Level.INFO, "purged TCP {}", String.valueOf(controller.getTCPwoFilter().size()));
-                            logger.log(Level.INFO, "purged UDP {}", String.valueOf(controller.getUDPwoFilter().size()));
-                            logger.log(Level.INFO, "purged ADSB {}", String.valueOf(controller.getADSBList().size()));
+                            // logger.log(Level.INFO, "purged TCP {}", String.valueOf(controller.getTCPwoFilter().size()));
+                            // logger.log(Level.INFO, "purged UDP {}", String.valueOf(controller.getUDPwoFilter().size()));
+                            logger.log(Level.INFO, "updated ADSB {}", String.valueOf(controller.getADSBList().size()));
                             Thread.sleep(15000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
@@ -617,20 +710,46 @@ public class GUIController implements Initializable {
 
             }
         }.start();
+        new Thread() {
 
+            // runnable for that thread
+            public void run() {
+                setName("TCP/UDP update");
+                while (true) {
+                    try {
+                        // imitating work
+                        backgroundupdate();
+                        relayTransmission();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    } finally {
+                        try {
+                            logger.log(Level.INFO, "purged TCP {}", String.valueOf(controller.getTCPwoFilter().size()));
+                            logger.log(Level.INFO, "purged UDP {}", String.valueOf(controller.getUDPwoFilter().size()));
+                            // logger.log(Level.INFO, "purged ADSB {}", String.valueOf(controller.getADSBList().size()));
+                            Thread.sleep(2000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                // update ProgressIndicator on FX thread
+
+            }
+        }.start();
         view_adsb.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 // view_adsb.setSelected(!newValue);
 
                 // fire command to javafx thread
-                synchronized (lock) {
+                synchronized (markersmapADSB) {
                     if(!view_adsb.isSelected()){
                         markersmapADSB.clear();
                         logger.info("ADSBMarker cleaned");
                     }else{
-                        update();
-                        logger.info("Triggered Update by adsbcheckbox");
+                        // update();
+                        // logger.info("Triggered Update by adsbcheckbox");
                     }
                 }
             }
@@ -641,13 +760,13 @@ public class GUIController implements Initializable {
                 // view_adsb.setSelected(!newValue);
 
                 // fire command to javafx thread
-                synchronized (lock) {
+                synchronized (markersmapTCP) {
                     if (!view_tcp.isSelected()) {
                         markersmapTCP.clear();
                         logger.info("TCPMarker cleaned");
                     }else{
-                        update();
-                        logger.info("Triggered Update by tcpcheckbox");
+                        // update();
+                        // logger.info("Triggered Update by tcpcheckbox");
                     }
                 }
             }
@@ -658,13 +777,13 @@ public class GUIController implements Initializable {
                 // view_adsb.setSelected(!newValue);
 
                 // fire command to javafx thread
-                synchronized (lock) {
+                synchronized (markersmapUDP) {
                     if (!view_udp.isSelected()) {
                         markersmapUDP.clear();
                         logger.info("UDPMarker cleaned");
                     } else {
-                        update();
-                        logger.info("Triggered Update by UDPcheckbox");
+                        // update();
+                        // logger.info("Triggered Update by UDPcheckbox");
                     }
                 }
             }
@@ -674,25 +793,28 @@ public class GUIController implements Initializable {
                         new EventHandler<ActionEvent>() {
                             @Override
                             public void handle(ActionEvent event) {
-                                HashSet<Plane> udptemp = controller.getUDPwoFilter();
-                                HashSet<Marker> udpMarker = new HashSet<>();
                                 if (view_udp.isSelected()) {
-                                    markersmapUDP.clear();
-                                    for (Plane p : udptemp) {
-                                        Marker m = toMarker(p);
-                                        // udpMarker.add(m);
-                                        markersmapUDP.put(p, m);
-                                        // markers.add(m);
-                                        // markersmap.put(p.mac,m);
-                                    }
-                                    try {
-                                        Plane p = ListUDP.getSelectionModel().getSelectedItem();
-                                        if (p != null) {
-                                            // markersmap.put(p,toBlueMarker(p));
-                                            updateLabel(p);
+                                    HashSet<Plane> udptemp = controller.getUDPwoFilter();
+                                    HashSet<Marker> udpMarker = new HashSet<>();
+                                    synchronized(markersmapUDP){
+                                        markersmapUDP.clear();
+                                        for (Plane p : udptemp) {
+                                            Marker m = toMarker(p);
+                                            // udpMarker.add(m);
+                                            markersmapUDP.put(p, m);
+                                            // markers.add(m);
+                                            // markersmap.put(p.mac,m);
                                         }
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
+                                        try {
+                                            Plane p = ListUDP.getSelectionModel().getSelectedItem();
+                                            if (p != null && srcTabPane.getSelectionModel().getSelectedItem().getText().equals("UDP")) {
+                                                logger.info("Plane {} selected", p);
+                                                markersmapUDP.put(p, toGreenMarker(p));
+                                                updateLabel(p);
+                                            }
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
                                     }
                                 }
                                 updateMarkers();
@@ -705,25 +827,29 @@ public class GUIController implements Initializable {
                         new EventHandler<ActionEvent>() {
                             @Override
                             public void handle(ActionEvent event) {
-                                HashSet<Plane> tcptemp = controller.getTCPwoFilter();
-                                HashSet<Marker> tcpMarker = new HashSet<>();
                                 if (view_tcp.isSelected()) {
-                                    markersmapTCP.clear();
-                                    for (Plane p : tcptemp) {
-                                        Marker m = toMarker(p);
-                                        // udpMarker.add(m);
-                                        markersmapTCP.put(p, m);
-                                        // markers.add(m);
-                                        // markersmap.put(p.mac,m);
-                                    }
-                                    try {
-                                        Plane p = ListTCP.getSelectionModel().getSelectedItem();
-                                        if (p != null) {
-                                            // markersmap.put(p, toBlueMarker(p));
-                                            updateLabel(p);
+                                    HashSet<Plane> tcptemp = controller.getTCPwoFilter();
+                                    HashSet<Marker> tcpMarker = new HashSet<>();
+                                    synchronized (markersmapTCP){
+                                        markersmapTCP.clear();
+                                        for (Plane p : tcptemp) {
+                                            Marker m = toMarker(p);
+                                            // udpMarker.add(m);
+                                            markersmapTCP.put(p, m);
+                                            // markers.add(m);
+                                            // markersmap.put(p.mac,m);
                                         }
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
+                                        try {
+                                            Plane p = ListTCP.getSelectionModel().getSelectedItem();
+                                            if (p != null && srcTabPane.getSelectionModel().getSelectedItem().getText()
+                                                    .equals("TCP")) {
+                                                logger.info("Plane {} selected", p);
+                                                markersmapTCP.put(p, toGreenMarker(p));
+                                                updateLabel(p);
+                                            }
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
                                     }
                                 }
                                 updateMarkers();
@@ -735,26 +861,31 @@ public class GUIController implements Initializable {
                         new EventHandler<ActionEvent>() {
                             @Override
                             public void handle(ActionEvent event) {
-                                HashSet<Plane> adsbtemp = controller.getADSBList();
-                                HashSet<Marker> adsbMarker = new HashSet<>();
                                 if (view_adsb.isSelected()) {
-                                    markersmapADSB.clear();
-                                    for (Plane p : adsbtemp) {
-                                        Marker m = toMarker(p);
-                                        // udpMarker.add(m);
-                                        markersmapADSB.put(p, m);
-                                        // markers.add(m);
-                                        // markersmap.put(p.mac,m);
-                                    }
-                                    try {
-                                        Plane p = ListADSB.getSelectionModel().getSelectedItem();
-                                        if (p != null) {
-                                            // markersmap.put(p, toBlueMarker(p));
-                                            updateLabel(p);
+                                    HashSet<Plane> adsbtemp = controller.getADSBList();
+                                    HashSet<Marker> adsbMarker = new HashSet<>();
+                                    synchronized(markersmapADSB) {
+                                        markersmapADSB.clear();
+                                        for (Plane p : adsbtemp) {
+                                            Marker m = toMarker(p);
+                                            // udpMarker.add(m);
+                                            markersmapADSB.put(p, m);
+                                            // markers.add(m);
+                                            // markersmap.put(p.mac,m);
                                         }
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
+                                        try {
+                                            Plane p = ListADSB.getSelectionModel().getSelectedItem();
+                                            if (p != null && srcTabPane.getSelectionModel().getSelectedItem().getText()
+                                                    .equals("ADSB")) {
+                                                logger.info("Plane {} selected", p);
+                                                markersmapADSB.put(p, toGreenMarker(p));
+                                                updateLabel(p);
+                                            }
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
                                     }
+                                    
                                 }
                                 
                                 updateMarkers();
@@ -768,24 +899,28 @@ public class GUIController implements Initializable {
                     @Override
                     public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
 
-                        if (t1.getText().equals("ADSB")) {
-                            fiveSecondsTCP.stop();
-                            fiveSecondsUDP.stop();
-                            fiveSecondsADSB.play();
-                        } else if(t1.getText().equals("TCP")) {
-                            fiveSecondsUDP.stop();
-                            fiveSecondsADSB.stop();
-                            fiveSecondsTCP.play();
-                        } else if(t1.getText().equals("UDP")){
-                            fiveSecondsADSB.stop();
-                            fiveSecondsTCP.stop();
-                            fiveSecondsUDP.play();
-                        }
-                        logger.info("Tab Selection changed to " + t1.toString());
+                        // if (t1.getText().equals("ADSB")) {
+                        //     fiveSecondsTCP.stop();
+                        //     fiveSecondsUDP.stop();
+                        //     fiveSecondsADSB.play();
+                        // } else if(t1.getText().equals("TCP")) {
+                        //     fiveSecondsUDP.stop();
+                        //     fiveSecondsADSB.stop();
+                        //     fiveSecondsTCP.play();
+                        // } else if(t1.getText().equals("UDP")){
+                        //     fiveSecondsADSB.stop();
+                        //     fiveSecondsTCP.stop();
+                        //     fiveSecondsUDP.play();
+                        // }
+                        logger.info("Tab Selection changed to {} ",t1.getText());
+                        
                     }
                 });
         //default to ADSB markers update at startup
-        fiveSecondsADSB.play();  
+        //fiveSecondsADSB.play();  
+        fiveSecondsADSB.play();
+        fiveSecondsTCP.play();
+        fiveSecondsUDP.play();
     }
 
     protected void configureMap() {

@@ -95,7 +95,7 @@ public class UDPHandler {
                 this.delay = 500;
                 break;
         }
-        createSocket(port, "0.0.0.0");
+        //createSocket(port, "0.0.0.0");
     }
 
     public void close() {
@@ -127,14 +127,18 @@ public class UDPHandler {
     }
     public void createSocket(int port, String host){
         try {
+            host = host.substring(1);
             inSocket = new DatagramSocket(null);
             inSocket.setReuseAddress(true);
             inSocket.setBroadcast(true);
-            inSocket.bind(new InetSocketAddress(host, port));
-            outSocket = new DatagramSocket();
+            inSocket.bind(new InetSocketAddress("0.0.0.0", port));
+            logger.info("reader started : {}",inSocket);
+            outSocket = new DatagramSocket(null);
             outSocket.setReuseAddress(true);
             outSocket.setBroadcast(true);
-            System.out.println(outSocket.getLocalPort());
+            outSocket.bind(new InetSocketAddress(host, 42168));
+            logger.info("writer started : {}",outSocket);
+            //System.out.println(outSocket.getLocalPort());
 
         } catch (SocketException e) {
             e.printStackTrace();
@@ -156,6 +160,7 @@ public class UDPHandler {
                         byte[] buf = new byte[MAX_RECEIVE_BUFFER_SIZE];
                         datagramPacket = new DatagramPacket(buf, buf.length);
                         inSocket.receive(datagramPacket);
+
                         // System.out.println("New client connected: " +
                         // datagramPacket.getAddress().getHostAddress());
                         ByteBuffer bb = ByteBuffer.wrap(buf);
@@ -163,6 +168,7 @@ public class UDPHandler {
                         synchronized (receivedBuffer) {
                             receivedBuffer.add(data);
                         }
+
                         // System.out.println(data);
                         // new Thread(() -> {
                         // try {

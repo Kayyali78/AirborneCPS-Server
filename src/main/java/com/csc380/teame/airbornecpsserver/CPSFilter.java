@@ -3,7 +3,10 @@ package com.csc380.teame.airbornecpsserver;
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.HashSet;
-
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.status.StatusData;
 /**
  * Apply filters to plane list to only planes that are part of the current
  * forwarding rules are being passed to the user, as well as ensuring we're
@@ -11,7 +14,7 @@ import java.util.HashSet;
  */
 
 public class CPSFilter {
-
+    private static final Logger logger = LogManager.getLogger(CPSFilter.class);
     HashSet<Plane> list;
     HashSet<Plane> hashList = new HashSet<>();
     HashMap<Plane, Plane> Hmap = new HashMap<>();
@@ -35,15 +38,35 @@ public class CPSFilter {
         //2. for every old plane, calculate the new heading angle if exist and replace.
         for(Plane p: temp.values()){
             if(Hmap.get(p) != null){
-                double x = p.lat - Hmap.get(p).lat;
-                double y = p.lon - Hmap.get(p).lon;
-                double heading = Math.toDegrees(Math.atan2(y,x));
-                Plane a = temp.get(p);
-                if(heading < 0.0) heading += 360.0;
-                a.heading = heading;
-                Hmap.put(a, a);
+                if(System.currentTimeMillis() - p.timestamp >= 10000){
+                    //if last seen over 10 seconds, then remove
+                    logger.warn("Lastseen {} > {} secs",p, (System.currentTimeMillis() - p.timestamp) / 1000);
+                    Hmap.remove(p);
+                }
+                else if(p.lat == 0 && p.lon == 0 && p.alt == 0){
+                    logger.warn("3 Zero Plane {} deleted",p);
+                    Hmap.remove(p);
+                }
+                else{
+                    double x = p.lat - Hmap.get(p).lat;
+                    double y = p.lon - Hmap.get(p).lon;
+                    double heading = Math.toDegrees(Math.atan2(y, x));
+                    Plane a = temp.get(p);
+                    if (heading < 0.0)
+                        heading += 360.0;
+                    a.heading = heading;
+                    Hmap.put(a, a);
+                }
             }else{
                 Hmap.put(p,p);
+            }
+        }
+        //3. loop the Hmap, delete too old planes
+        for(Plane p: Hmap.values()){
+            if (System.currentTimeMillis() - p.timestamp >= 10000) {
+                // if last seen over 10 seconds, then remove
+                logger.warn("Lastseen {} > {} secs", p, (System.currentTimeMillis() - p.timestamp) / 1000);
+                Hmap.remove(p);
             }
         }
         return new HashSet<Plane>(Hmap.values());
