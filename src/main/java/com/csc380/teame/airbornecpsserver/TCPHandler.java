@@ -19,13 +19,14 @@ public class TCPHandler implements Runnable{
     protected enum Mode { normal, slower, slowest }
     private final static String helptext = "Syntax: java -jar tcpbeacons.jar (-server PORT? FILENAME | -client IP PORT FILENAME) slow? slow?";
     private Socket clientSocket = new Socket();
-
+    private String clientHost = null;
     static HashSet<String> readerBuf = new HashSet<String>();
     static HashSet<Plane> writerBuf = new HashSet<Plane>();
     // Object rlock = new Object(), wlock = new Object();
 
     public TCPHandler(Socket socket) throws FileNotFoundException {
         this.clientSocket = socket;
+        //this.clientHost = socket.getInetAddress().getHostAddress();
         // fillList();
     }
 
@@ -37,7 +38,9 @@ public class TCPHandler implements Runnable{
 
     public static synchronized HashSet<String> getReaderBuffer(){
         synchronized (readerBuf){
-            return readerBuf;
+            HashSet<String>temp = new HashSet<>(readerBuf);
+            readerBuf.clear();
+            return temp;
         }
     }
     public static void updateSenderBuffer(HashSet<Plane> in) {
@@ -107,7 +110,7 @@ public class TCPHandler implements Runnable{
 
         String line = "";
         long t1 = System.currentTimeMillis();
-        int counter=0;
+        int counter = 0;
         while (true) {
             //timer base update
             
@@ -116,9 +119,13 @@ public class TCPHandler implements Runnable{
                     synchronized(writerBuf){
                         for(Plane p:writerBuf){
                             //out.println(p.getBeacon());
-                            System.out.println("Write to the client: " + p.getBeacon() + "\n");
-                            out.println(p.getBeacon());
-                            Thread.sleep(50);
+                            if(this.clientHost != null && !(p.ip.equals(this.clientHost))){
+                                //System.out.println("Write to the client: " + p.getBeacon() + "\n");
+                                logger.info("TCP write to {} : {}",this.clientSocket.getInetAddress().getHostAddress(),p.getBeacon());
+                                out.println(p.getBeacon());
+
+                            }
+                            Thread.sleep(20);
                         }
                     }
                     Thread.sleep(10);
@@ -128,11 +135,22 @@ public class TCPHandler implements Runnable{
                 else if (counter++ < 100 && (line = in.readLine()) != null ) {
                     //if socketbreaks, exception happen first before break.
                     //System.out.println("Sent from the client: " + line + "\n");
-                    logger.debug("Sent from {}: {}", clientip,line);
+
+                    if(this.clientHost == null){
+                        this.clientHost = Plane.getIP(line);
+                    }
+                    logger.debug("Sent from {}: {}", clientHost,line);
                     readtoBuffer(line);
                 }
             } catch (Exception ex) {
+                
                 ex.printStackTrace();
+                logger.warn("TCP: {} DCed",this.clientHost);
+                //then we add the fake plane to static list;
+                synchronized (readerBuf){
+                    readerBuf.add("n0n" + this.clientHost + "n0n0n0");
+                    logger.warn("ADDed fake planes to delete : {}", this.clientHost);
+                }
                 break;
             }
             
