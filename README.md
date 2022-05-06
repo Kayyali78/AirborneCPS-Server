@@ -5,10 +5,10 @@ You can download the packed jar file from the [release](https://github.com/Kayya
 
 Tested on windows 10 x64
 
-##Installation
+## Installation
 
 * Maven for building project.
-* \*Install [opensky-api](https://github.com/openskynetwork/opensky-api) locally with maven first.\*
+*  ** Install [opensky-api](https://github.com/openskynetwork/opensky-api) locally with maven first. **
 * Then use `maven build` for the jar file, and the jar would be self-executable.
 
 ## Airborne-CPS dataflow
@@ -58,6 +58,8 @@ The AirborneCPS-Server has a map in the middle, which can render the received pl
 There is a listview on the right of the gui, which contains three kinds of different sources. Each plane is listed in either ( "CALLSIGN" or "IP" ) + ("Speed").
 ##### Click
 If you select a plane which is listed, the map will be reposition to where the plane exist right now, and will render the selected plane is green.
+##### Scope of the Opensky-ADSB
+On the left side of the map contains a box looks like the earth with for parameters, which is the bounded area of the opensky api region. We can update border with *Update Border* button with the border parameters are modified in the box of four.
 
 ### Starts TCP/UDP server with port/IP
 On the left of the map, we can choose the port which the TCP/UDP server maps to, and also we need to choose the IP address the server is going to bind, then click on *network start* to get the server working.
@@ -97,8 +99,7 @@ StateVector@71 "StateVectorStateVector {
 }"
 ```
 
-#### Scope of the Opensky-ADSB
-On the left side of the map contains a box looks like the earth with for parameters, which is the bounded area of the opensky api region. We can update border with *Update Border* button with the border parameters are modified in the box of four.
+
 
 
 
