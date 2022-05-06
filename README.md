@@ -9,7 +9,7 @@ Tested on windows 10 x64
 
 * Maven for building project.
 *  ** Install [opensky-api](https://github.com/openskynetwork/opensky-api) locally with maven first. **
-* Then use `maven build` for the jar file, and the jar would be self-executable.
+* Then use `mvn build` for the jar file, and the jar would be self-executable.
 
 ## Airborne-CPS dataflow
 
