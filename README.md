@@ -42,6 +42,8 @@ The initial version of GUI
 The final version of GUI
 ![image](https://user-images.githubusercontent.com/98616637/167196787-f6bb5207-4af0-4e4f-94c7-3744e7a56bca.png)
 
+Remarks: If the map freezes somehow, press the `Terms of use` and `right-click` return to the main map until it resolves(may be 3-5 times)
+
 Split panel consist of three panel.
 
 Left Panel is where we can selected view, or selected drop file.
