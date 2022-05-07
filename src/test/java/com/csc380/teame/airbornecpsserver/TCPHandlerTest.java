@@ -11,10 +11,15 @@ import java.net.UnknownHostException;
 
 public class TCPHandlerTest extends TestCase {
 
-    public void testBlankTCP() throws InterruptedException, FileNotFoundException {
+    public void testBlankTCP() throws InterruptedException, IOException {
+            //TCPHandler tcpHandler = new TCPHandler();
 
-        //TCPHandler tcpHandler = new TCPHandler();
-        //tcpHandler.serve();
+            Client client = new Client();
+            client.connect("southboundloop.txt");
+            //TCPHandler tcpHandler1 = new TCPHandler();
+            //TCPHandler tcpHandler2 = new TCPHandler("java -jar tcpbeacons.jar -client 127.0.0.1 1901 southbound.txt slow".split(" "));
+            Client client1 = new Client();
+            client1.connect();
     }
 
     public void testGetTCPBeacon() {

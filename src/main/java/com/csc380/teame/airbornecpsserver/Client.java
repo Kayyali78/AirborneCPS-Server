@@ -31,6 +31,7 @@ public class Client {
         try (Socket socket = new Socket(this.ip, this.port)) {
             System.out.println("Connected to " + socket.getInetAddress().getHostName() + " at " +
                     socket.getInetAddress().getHostAddress() + " on port " + socket.getPort());
+
             // writing to server
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             while (true) {
@@ -127,7 +128,6 @@ public class Client {
         Client c1 = new Client();
         File file = new File("southboundloop.txt");
         c1.connect();
-
     }
 }
 

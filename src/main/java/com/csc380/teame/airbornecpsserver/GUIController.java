@@ -223,7 +223,7 @@ public class GUIController implements Initializable {
     @FXML
     public void tcpInjection(ActionEvent event) {
         try {
-            SampleClient sclient = new SampleClient();
+            Client sclient = new Client();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -591,7 +591,7 @@ public class GUIController implements Initializable {
 
     /**
      * @param
-     * Plane p
+     * //Plane p
      * 
      * @TODO
      * 1.setLabel
